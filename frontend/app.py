@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 from datetime import datetime
 import streamlit as st
+import time
 
 # ========== Imports ==========
 from src.core.chat import chat_with_gpt
@@ -43,6 +44,20 @@ if os.path.exists(LOG_FILE_XML):
         with open(LOG_FILE_XML, "r") as f:
             history_content = f.read()
         st.code(history_content, language="xml")
+        
+        # Hiển thị thời gian cập nhật
+        last_modified = os.path.getmtime(LOG_FILE_XML)
+        st.caption(f"🕓 Last updated: {time.ctime(last_modified)}")
+
+        # Nút clear nội dung
+        if st.button("🧹 Clear History Content", key="clear_history"):
+            try:
+                with open(LOG_FILE_XML, "w") as f:
+                    f.write("")  # chỉ xoá nội dung
+                st.success("✅ History content cleared.")
+                st.rerun()
+            except Exception as e:
+                st.error(f"❌ Failed to clear content: {e}")
 else:
     st.sidebar.info("🕵️ No history_chat.xml found.")
 
@@ -77,20 +92,26 @@ for user_msg, bot_msg in st.session_state.chat_history:
 
 # ========== Chat Input ==========
 user_input = st.chat_input("Ask me anything...")
-if user_input:
-    st.session_state.chat_history.append((user_input, "🤖 Thinking..."))
-    st.rerun()
 
-# ========== Handle Bot Response ==========
-if st.session_state.chat_history:
-    last_user_msg, last_bot_msg = st.session_state.chat_history[-1]
-    if last_bot_msg == "🤖 Thinking...":
-        response, updated_history = chat_with_gpt(last_user_msg, st.session_state.chat_history)
-        st.session_state.chat_history = updated_history
-        print(f"History now: {updated_history}")
-        save_history_to_xml(updated_history)
-        print("Updated history sucessfully")
-        st.rerun()
+if user_input:
+    # Hiển thị user message ngay
+    st.markdown(f'<div class="chat-container user"><div class="chat-bubble">{user_input}</div></div>', unsafe_allow_html=True)
+
+    # Tạo khung tạm thời hiển thị bot đang suy nghĩ
+    bot_placeholder = st.empty()
+    bot_placeholder.markdown('<div class="chat-container bot"><div class="chat-bubble">🤖 Thinking...</div></div>', unsafe_allow_html=True)
+
+    # Gọi GPT và lấy response
+    response, updated_history = chat_with_gpt(user_input, st.session_state.chat_history)
+
+    # Ghi đè Thinking... bằng bot response thật
+    bot_placeholder.markdown(f'<div class="chat-container bot"><div class="chat-bubble">{response}</div></div>', unsafe_allow_html=True)
+
+    # Cập nhật history và lưu file
+    st.session_state.chat_history = updated_history
+    save_history_to_xml(updated_history)
+
+    st.rerun()
 
 # ========== Upload Section: Inline Form ==========
 st.markdown("---")
