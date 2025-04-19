@@ -1,4 +1,7 @@
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
 
 # === Base project root ===
 BASE_DIR = Path(__file__).resolve().parents[2]  # chatbot_rag/
@@ -12,4 +15,10 @@ FIREBASE_COLLECTION_NAME = "olb_embeddings"
 TOKEN_LIMIT = 64000 
 KEEP_LAST_N_PAIRS = 1
 CHUNK_SIZE = 700
+
+# API KEY LOADED
+load_dotenv()
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+if not OPENAI_API_KEY:
+    raise RuntimeError("❌ OPENAI_API_KEY not found in environment variables.")
 

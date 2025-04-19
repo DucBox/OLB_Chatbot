@@ -9,9 +9,6 @@ from src.utils.utils import chunk_text, save_uploaded_file, extract_text_from_pd
 from datetime import datetime
 from dotenv import load_dotenv
 
-load_dotenv()  
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-
 def process_uploaded_docs(file_path: str, doc_id: str, uploaded_by: str, position: str):
     """
     Full pipeline to process uploaded document:

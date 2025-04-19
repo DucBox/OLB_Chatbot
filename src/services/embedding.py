@@ -3,15 +3,12 @@ import os
 import fitz 
 import chromadb
 import openai
-from src.utils.config import CHROMADB_PATH, FIREBASE_COLLECTION_NAME
+from src.utils.config import CHROMADB_PATH, FIREBASE_COLLECTION_NAME,OPENAI_API_KEY
 from src.utils.utils import extract_text_from_pdf, extract_text_from_txt
 from src.database.chromadb_connection import collection
 from src.database.firebase_connection import db  
 from datetime import datetime
 from dotenv import load_dotenv
-
-load_dotenv() 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 client = openai.OpenAI(api_key=OPENAI_API_KEY)
 

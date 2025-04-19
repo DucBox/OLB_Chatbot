@@ -2,7 +2,7 @@ import openai
 import os
 import re
 
-from src.utils.config import TOKEN_LIMIT
+from src.utils.config import TOKEN_LIMIT, OPENAI_API_KEY
 from src.utils.utils import count_tokens
 from src.storage.history import save_history_to_xml, load_history_from_xml
 from src.core.retrieval import retrieve_relevant_chunks
@@ -10,9 +10,6 @@ from src.services.chat_history_handler import process_history_chat
 from src.services.embedding import generate_embedding
 from dotenv import load_dotenv
 
-load_dotenv()  
-
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 client = openai.OpenAI(api_key=OPENAI_API_KEY)
 
 def chat_with_gpt(user_input: str, history: list[tuple[str, str]]) -> tuple[str, list[tuple[str, str]]]:

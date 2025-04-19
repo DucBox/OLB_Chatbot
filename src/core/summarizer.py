@@ -3,9 +3,8 @@ import openai
 import datetime
 from src.utils.utils import chunk_text, format_chat_history
 from dotenv import load_dotenv
+from src.utils.config import OPENAI_API_KEY
 
-load_dotenv() 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 client = openai.OpenAI(api_key=OPENAI_API_KEY)
 
 def summarize_chunks(chunks: list[str], doc_id: str = "summary") -> list[tuple[str, str]]:
