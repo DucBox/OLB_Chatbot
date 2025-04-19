@@ -1,0 +1,7 @@
+streamlit
+openai
+chromadb
+PyMuPDF
+nltk
+tiktoken
+faiss-cpu

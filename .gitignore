@@ -1,0 +1,12 @@
+# Ignore Python cache
+__pycache__/
+*.pyc
+
+# VSCode
+.vscode/
+
+# Environment & secrets
+.env
+*.env
+src/utils/firebase_key.json
+firebase_key.json
