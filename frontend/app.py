@@ -11,6 +11,7 @@ from src.storage.history import load_history_from_xml, save_history_to_xml
 from src.services.files import process_uploaded_docs
 from src.utils.utils import delete_document_chromadb, list_all_doc_ids_chromadb
 from src.utils.utils import delete_document_firebase, list_all_doc_ids_firebase
+from src.utils.config import LOG_FILE_XML
 
 # ========== UI Setup ==========
 st.set_page_config(page_title="OLB Assistant", page_icon="🤖", layout="wide")
@@ -32,6 +33,19 @@ try:
                     st.rerun()
 except Exception as e:
     st.sidebar.error(f"⚠️ Failed to load documents: {e}")
+
+# ========== Sidebar: System Logs ==========
+st.sidebar.markdown("---")  # Separator
+st.sidebar.markdown("### 📂 System Logs")
+
+if os.path.exists(LOG_FILE_XML):
+    with st.sidebar.expander("📜 View history_chat.xml", expanded=False):
+        with open(LOG_FILE_XML, "r") as f:
+            history_content = f.read()
+        st.code(history_content, language="xml")
+else:
+    st.sidebar.info("🕵️ No history_chat.xml found.")
+
 
 
 # ========== CSS ==========
