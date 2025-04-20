@@ -104,41 +104,38 @@ if user_input:
 
     st.rerun()
 
-# ========== Upload Section: Inline Form ==========
-st.markdown("---")
-st.subheader("📤 Upload a Document")
+with st.expander("📤 Upload Document", expanded=False):  # ✅ collapsed by default
+    col1, col2, col3, col4, col5 = st.columns([5, 2, 2, 2, 1])
 
-col1, col2, col3, col4, col5 = st.columns([5, 2, 2, 2, 1])
+    with col1:
+        uploaded_file = st.file_uploader("📂 File", type=["pdf", "txt"], label_visibility="collapsed")
 
-with col1:
-    uploaded_file = st.file_uploader("📂 File", type=["pdf", "txt"], label_visibility="collapsed")
+    with col2:
+        doc_id = st.text_input("🆔 Doc ID")
 
-with col2:
-    doc_id = st.text_input("🆔 Doc ID")
+    with col3:
+        uploaded_by = st.text_input("👤 Name")
 
-with col3:
-    uploaded_by = st.text_input("👤 Name")
+    with col4:
+        position = st.text_input("💼 Position")
 
-with col4:
-    position = st.text_input("💼 Position")
+    with col5:
+        st.markdown("<div style='height: 28px'></div>", unsafe_allow_html=True)
+        centered = st.columns([1, 1, 1])
+        with centered[1]:
+            if st.button("📤"):
+                if uploaded_file and doc_id and uploaded_by and position:
+                    temp_path = os.path.join("temp", uploaded_file.name)
+                    os.makedirs("temp", exist_ok=True)
+                    with open(temp_path, "wb") as f:
+                        f.write(uploaded_file.getbuffer())
 
-with col5:
-    st.markdown("<div style='height: 28px'></div>", unsafe_allow_html=True)
-    centered = st.columns([1, 1, 1])
-    with centered[1]:  # center column
-        if st.button("📤"):
-            if uploaded_file and doc_id and uploaded_by and position:
-                temp_path = os.path.join("temp", uploaded_file.name)
-                os.makedirs("temp", exist_ok=True)
-                with open(temp_path, "wb") as f:
-                    f.write(uploaded_file.getbuffer())
-
-                process_uploaded_docs(
-                    file_path=temp_path,
-                    doc_id=doc_id,
-                    uploaded_by=uploaded_by,
-                    position=position
-                )
-                st.rerun()
-            else:
-                st.warning("⚠️ Please fill all fields.")
+                    process_uploaded_docs(
+                        file_path=temp_path,
+                        doc_id=doc_id,
+                        uploaded_by=uploaded_by,
+                        position=position
+                    )
+                    st.rerun()
+                else:
+                    st.warning("⚠️ Please fill all fields.")
