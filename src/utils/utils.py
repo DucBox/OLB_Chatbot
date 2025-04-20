@@ -5,6 +5,8 @@ from datetime import datetime
 from pathlib import Path
 from src.utils.config import CHUNK_SIZE, BASE_DIR, FIREBASE_COLLECTION_NAME
 from src.database.chromadb_connection import collection
+from src.database.firebase_connection import db  
+
 def count_tokens(text):
     """
     Counts the number of tokens in a given text using tiktoken.
@@ -126,21 +128,37 @@ def delete_document_chromadb(doc_id: str):
     except Exception as e:
         print(f"⚠️ Failed to delete doc_id {doc_id}: {str(e)}")
         
-from src.database.firebase_connection import db  
-def list_all_doc_ids_firebase() -> list[str]:
+def list_all_doc_ids_firebase(user_id: str) -> list[str]:
     """
-    Truy vấn tất cả doc_id hiện đang lưu trong Firestore.
+    Truy vấn tất cả doc_id từ:
+    - Public uploads (source_type == 'upload')
+    - Lịch sử chat riêng của user (source_type == '{user_id}_conversation')
 
     Returns:
         list[str]: Danh sách các doc_id (duy nhất, đã sắp xếp).
     """
     try:
-        docs = db.collection(FIREBASE_COLLECTION_NAME).stream()
-        doc_ids = {doc.to_dict().get("doc_id") for doc in docs if doc.to_dict().get("doc_id")}
+        public_docs = db.collection(FIREBASE_COLLECTION_NAME) \
+                        .where("source_type", "==", "upload") \
+                        .stream()
+
+        personal_docs = db.collection(FIREBASE_COLLECTION_NAME) \
+                        .where("source_type", "==", f"{user_id}_conversation") \
+                        .stream()
+
+        all_docs = list(public_docs) + list(personal_docs)
+
+        doc_ids = {
+            doc.to_dict().get("doc_id")
+            for doc in all_docs
+            if doc.to_dict().get("doc_id")
+        }
+
         return sorted(doc_ids)
     except Exception as e:
         print(f"❌ Error listing doc_ids: {e}")
         return []
+
 
 def delete_document_firebase(doc_id: str):
     """
