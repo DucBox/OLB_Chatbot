@@ -13,6 +13,7 @@ from src.services.files import process_uploaded_docs
 from src.utils.utils import delete_document_chromadb, list_all_doc_ids_chromadb
 from src.utils.utils import delete_document_firebase, list_all_doc_ids_firebase
 from src.utils.config import LOG_FILE_XML, HISTORY_STORE_PATH
+from src.services.chat_history_handler import render_user_chat_history
 
 # ========== UI Setup ==========
 st.set_page_config(page_title="OLB Assistant", page_icon="🤖", layout="wide")
@@ -28,8 +29,6 @@ if "user_id" not in st.session_state:
 
 user_id = st.session_state.user_id
 USER_HISTORY_CHAT_FILE = HISTORY_STORE_PATH / f"chat_history_{user_id}.xml"
-
-print(USER_HISTORY_CHAT_FILE)
 
 # ===== Tạo file XML rỗng nếu chưa có =====
 if not os.path.exists(USER_HISTORY_CHAT_FILE):
@@ -59,25 +58,8 @@ except Exception as e:
 st.sidebar.markdown("---")  # Separator
 st.sidebar.markdown("### 📂 System Logs")
 
-if os.path.exists(USER_HISTORY_CHAT_FILE):
-    with st.sidebar.expander("📜 View Your Chat History", expanded=False):
-        with open(USER_HISTORY_CHAT_FILE, "r") as f:
-            history_content = f.read()
-        st.code(history_content, language="xml")
-
-        last_modified = os.path.getmtime(USER_HISTORY_CHAT_FILE)
-        st.caption(f"🕓 Last updated: {time.ctime(last_modified)}")
-
-        if st.button("🧹 Clear History Content", key="clear_history"):
-            try:
-                with open(USER_HISTORY_CHAT_FILE, "w") as f:
-                    f.write("")
-                st.success("✅ History content cleared.")
-                st.rerun()
-            except Exception as e:
-                st.error(f"❌ Failed to clear content: {e}")
-else:
-    st.sidebar.info("🕵️ No chat history file found.")
+with st.sidebar.expander("📜 View Your Chat History", expanded=False):
+    render_user_chat_history(USER_HISTORY_CHAT_FILE, user_id)
 
 # ========== CSS ==========
 st.markdown("""

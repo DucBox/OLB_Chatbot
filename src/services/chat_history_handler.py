@@ -1,7 +1,7 @@
 from src.core.summarizer import summarize_chunks
 from src.services.embedding import embed_text
 from src.utils.config import KEEP_LAST_N_PAIRS, CHUNK_SIZE
-from src.utils.utils import format_chat_history, chunk_text
+from src.utils.utils import format_chat_history, chunk_text, parse_history_xml, display_history_chat
 from datetime import datetime
 from uuid import uuid4
 
@@ -52,4 +52,15 @@ def process_history_chat(
 
     truncated = history[-KEEP_LAST_N_PAIRS:] if KEEP_LAST_N_PAIRS > 0 else []
     return truncated
+
+def render_user_chat_history(xml_path: str, user_id: str):
+    """
+    Hàm chính: parse và hiển thị nội dung từ file XML lịch sử chat.
+
+    Args:
+        xml_path (str): Đường dẫn file history_{user_id}.xml
+    """
+    history = parse_history_xml(xml_path)
+    display_history_chat(history, user_id)
+
 

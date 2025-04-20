@@ -6,6 +6,8 @@ from pathlib import Path
 from src.utils.config import CHUNK_SIZE, BASE_DIR, FIREBASE_COLLECTION_NAME
 from src.database.chromadb_connection import collection
 from src.database.firebase_connection import db  
+import xml.etree.ElementTree as ET
+import streamlit as st
 
 def count_tokens(text):
     """
@@ -175,3 +177,30 @@ def delete_document_firebase(doc_id: str):
     except Exception as e:
         print(f"❌ Error deleting doc_id {doc_id}: {e}")
 
+def parse_history_xml(xml_path: str) -> list[tuple[str, str]]:
+    """
+    Đọc file XML và trả ra danh sách (user, bot) pairs.
+    """
+    try:
+        tree = ET.parse(xml_path)
+        root = tree.getroot()
+
+        history = []
+        for conv in root.findall("conversation"):
+            user_msg = conv.find("user").text or "[Empty]"
+            bot_msg = conv.find("bot").text or "[Empty]"
+            history.append((user_msg, bot_msg))
+
+        return history
+    except Exception as e:
+        print(f"❌ Error parsing XML {xml_path}: {e}")
+        return []
+
+def display_history_chat(history: list[tuple[str, str]], user_id: str):
+    """
+    Hiển thị nội dung lịch sử chat dạng gọn đẹp trên UI.
+    """
+    for i, (user_msg, bot_msg) in enumerate(history):
+        st.markdown(f"**🧑 {user_id}:** {user_msg}")
+        st.markdown(f"**🤖 Bot:** {bot_msg}")
+        st.markdown("---")
