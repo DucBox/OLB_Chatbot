@@ -12,17 +12,37 @@ from src.storage.history import load_history_from_xml, save_history_to_xml
 from src.services.files import process_uploaded_docs
 from src.utils.utils import delete_document_chromadb, list_all_doc_ids_chromadb
 from src.utils.utils import delete_document_firebase, list_all_doc_ids_firebase
-from src.utils.config import LOG_FILE_XML
+from src.utils.config import LOG_FILE_XML, HISTORY_STORE_PATH
 
 # ========== UI Setup ==========
 st.set_page_config(page_title="OLB Assistant", page_icon="🤖", layout="wide")
 st.title("🤖 OLB AI Bot Assistant")
+user_input = st.sidebar.text_input("👤 Enter your name or ID:", key="user_id_input")
+
+if "user_id" not in st.session_state and user_input:
+    st.session_state.user_id = user_input
+    st.rerun()
+
+if "user_id" not in st.session_state:
+    st.stop()
+
+user_id = st.session_state.user_id
+USER_HISTORY_CHAT_FILE = HISTORY_STORE_PATH / f"chat_history_{user_id}.xml"
+
+print(USER_HISTORY_CHAT_FILE)
+
+# ===== Tạo file XML rỗng nếu chưa có =====
+if not os.path.exists(USER_HISTORY_CHAT_FILE):
+    os.makedirs(os.path.dirname(USER_HISTORY_CHAT_FILE), exist_ok=True)
+    print(f"Created new history chat for {user_id} at {USER_HISTORY_CHAT_FILE}")
+    with open(USER_HISTORY_CHAT_FILE, "w") as f:
+        f.write('<?xml version="1.0" encoding="utf-8"?><chat_history></chat_history>')
 
 # ========== Sidebar: Document Management ==========
 st.sidebar.markdown("### 🗂 Document Manager")
 
 try:
-    doc_ids = list_all_doc_ids_firebase()
+    doc_ids = list_all_doc_ids_firebase(user_id)
     if not doc_ids:
         st.sidebar.info("No documents found.")
     else:
@@ -39,29 +59,25 @@ except Exception as e:
 st.sidebar.markdown("---")  # Separator
 st.sidebar.markdown("### 📂 System Logs")
 
-if os.path.exists(LOG_FILE_XML):
-    with st.sidebar.expander("📜 View history_chat.xml", expanded=False):
-        with open(LOG_FILE_XML, "r") as f:
+if os.path.exists(USER_HISTORY_CHAT_FILE):
+    with st.sidebar.expander("📜 View Your Chat History", expanded=False):
+        with open(USER_HISTORY_CHAT_FILE, "r") as f:
             history_content = f.read()
         st.code(history_content, language="xml")
-        
-        # Hiển thị thời gian cập nhật
-        last_modified = os.path.getmtime(LOG_FILE_XML)
+
+        last_modified = os.path.getmtime(USER_HISTORY_CHAT_FILE)
         st.caption(f"🕓 Last updated: {time.ctime(last_modified)}")
 
-        # Nút clear nội dung
         if st.button("🧹 Clear History Content", key="clear_history"):
             try:
-                with open(LOG_FILE_XML, "w") as f:
-                    f.write("")  # chỉ xoá nội dung
+                with open(USER_HISTORY_CHAT_FILE, "w") as f:
+                    f.write("")
                 st.success("✅ History content cleared.")
                 st.rerun()
             except Exception as e:
                 st.error(f"❌ Failed to clear content: {e}")
 else:
-    st.sidebar.info("🕵️ No history_chat.xml found.")
-
-
+    st.sidebar.info("🕵️ No chat history file found.")
 
 # ========== CSS ==========
 st.markdown("""
@@ -83,7 +99,7 @@ st.markdown("""
 
 # ========== Load Chat History ==========
 if "chat_history" not in st.session_state:
-    st.session_state.chat_history = load_history_from_xml()
+    st.session_state.chat_history = load_history_from_xml(path = USER_HISTORY_CHAT_FILE)
 
 # ========== Display Chat ==========
 for user_msg, bot_msg in st.session_state.chat_history:
@@ -94,22 +110,15 @@ for user_msg, bot_msg in st.session_state.chat_history:
 user_input = st.chat_input("Ask me anything...")
 
 if user_input:
-    # Hiển thị user message ngay
     st.markdown(f'<div class="chat-container user"><div class="chat-bubble">{user_input}</div></div>', unsafe_allow_html=True)
-
-    # Tạo khung tạm thời hiển thị bot đang suy nghĩ
     bot_placeholder = st.empty()
     bot_placeholder.markdown('<div class="chat-container bot"><div class="chat-bubble">🤖 Thinking...</div></div>', unsafe_allow_html=True)
 
-    # Gọi GPT và lấy response
-    response, updated_history = chat_with_gpt(user_input, st.session_state.chat_history)
-
-    # Ghi đè Thinking... bằng bot response thật
+    response, updated_history = chat_with_gpt(user_input, st.session_state.chat_history, user_id)
     bot_placeholder.markdown(f'<div class="chat-container bot"><div class="chat-bubble">{response}</div></div>', unsafe_allow_html=True)
 
-    # Cập nhật history và lưu file
     st.session_state.chat_history = updated_history
-    save_history_to_xml(updated_history)
+    save_history_to_xml(updated_history, path = USER_HISTORY_CHAT_FILE)
 
     st.rerun()
 
