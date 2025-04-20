@@ -27,7 +27,7 @@ def chat_with_gpt(user_input: str, history: list[tuple[str, str]], user_id: str)
     user_embedding = generate_embedding(user_input)
         
     # Step 1: Retrieve relevant memory info
-    retrieved_texts = retrieve_relevant_chunks(query_embedding = user_embedding, top_k=3, user_id = user_id)
+    retrieved_texts = retrieve_relevant_chunks(query_embedding = user_embedding, top_k=5, user_id = user_id)
 
     # Step 2: Build prompt
     prompt = build_prompt(user_input, history, retrieved_texts)
