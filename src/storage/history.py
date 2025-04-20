@@ -1,17 +1,16 @@
 import os
 import xml.etree.ElementTree as ET
-from src.utils.config import LOG_FILE_XML
 
-def load_history_from_xml() -> list[tuple[str, str]]:
+def load_history_from_xml(path) -> list[tuple[str, str]]:
     """
     Loads conversation history from the XML file and returns it as a list of (user, bot) tuples.
     Always returns a list (empty if file not found or failed).
     """
-    if not os.path.exists(LOG_FILE_XML):
+    if not os.path.exists(path):
         return []
 
     try:
-        tree = ET.parse(LOG_FILE_XML)
+        tree = ET.parse(path)
         root = tree.getroot()
         history = []
         for conv in root.findall("conversation"):
@@ -23,7 +22,7 @@ def load_history_from_xml() -> list[tuple[str, str]]:
         print(f"⚠️ Error loading chat history: {str(e)}")
         return []
     
-def save_history_to_xml(history: list[tuple[str, str]]):
+def save_history_to_xml(history: list[tuple[str, str]], path):
     """
     Saves the given conversation history to an XML file.
     Expects a list of (user, bot) tuples.
@@ -41,6 +40,6 @@ def save_history_to_xml(history: list[tuple[str, str]]):
         bot_elem.text = bot_msg
 
     tree = ET.ElementTree(root)
-    os.makedirs(os.path.dirname(LOG_FILE_XML), exist_ok=True)
-    tree.write(LOG_FILE_XML, encoding="utf-8", xml_declaration=True)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    tree.write(path, encoding="utf-8", xml_declaration=True)
 

@@ -3,12 +3,15 @@ from src.services.embedding import embed_text
 from src.utils.config import KEEP_LAST_N_PAIRS, CHUNK_SIZE
 from src.utils.utils import format_chat_history, chunk_text
 from datetime import datetime
+from uuid import uuid4
 
 def process_history_chat(
     history: list[tuple[str, str]],
     doc_id: str = "conversation",
     uploaded_by: str = "system",
-    position: str = "automated"
+    position: str = "user",
+    source_type: str = "user_conversation",
+    user_id: str = "unknown_id"
 ) -> list[tuple[str, str]]:
     """
     Processes chat history by:
@@ -32,18 +35,21 @@ def process_history_chat(
     summarized_chunks = summarize_chunks(chunks, doc_id=doc_id)
 
     timestamp = datetime.now().isoformat()
+    session_id = datetime.now().strftime("%Y%m%d%H%M%S")
+    
     for i, (chunk_id, summary) in enumerate(summarized_chunks):
         metadata = {
             "doc_id": doc_id,
             "chunk_index": i,
-            "source_type": "history_chat",
+            "source_type": source_type,
             "uploaded_by": uploaded_by,
             "position": position,
             "timestamp": timestamp
         }
-        embed_text(summary, chunk_id, metadata)
+        full_chunk_id = f"{doc_id}_{session_id}_summary_chunk_{i}_{user_id}"
+        print(full_chunk_id)
+        embed_text(summary, full_chunk_id, metadata)
 
     truncated = history[-KEEP_LAST_N_PAIRS:] if KEEP_LAST_N_PAIRS > 0 else []
-    print(truncated)
     return truncated
 
