@@ -37,6 +37,7 @@ def process_history_chat(
     timestamp = datetime.now().isoformat()
     session_id = datetime.now().strftime("%Y%m%d%H%M%S")
     
+    full_doc_id = f"{doc_id}_{session_id}"
     for i, (chunk_id, summary) in enumerate(summarized_chunks):
         metadata = {
             "doc_id": doc_id,
