@@ -30,7 +30,7 @@ import numpy as np
 from src.database.firebase_connection import db
 from src.utils.config import FIREBASE_COLLECTION_NAME
 
-def retrieve_relevant_chunks(query_embedding: list[float], top_k: int = 3) -> list[str]:
+def retrieve_relevant_chunks(query_embedding: list[float], top_k: int, user_id: str) -> list[str]:
     """
     Truy vấn top-k văn bản gần nhất từ Firestore dùng FAISS + embedding.
 
@@ -42,15 +42,15 @@ def retrieve_relevant_chunks(query_embedding: list[float], top_k: int = 3) -> li
         list[str]: Danh sách văn bản gần nhất
     """
     try:
-        # 1. Lấy toàn bộ embedding + text từ Firestore
         docs = db.collection(FIREBASE_COLLECTION_NAME).stream()
         texts, embeddings = [], []
 
         for doc in docs:
             data = doc.to_dict()
-            if "embedding" in data and "text" in data:
-                embeddings.append(data["embedding"])
-                texts.append(data["text"])
+            if data.get("source_type") == "upload" or data.get("source_type") == f"{user_id}_conversation":
+                if "embedding" in data and "text" in data:
+                    embeddings.append(data["embedding"])
+                    texts.append(data["text"])
 
         if not embeddings:
             return ["⚠️ Không có dữ liệu embedding để search."]
