@@ -3,11 +3,18 @@ import tiktoken
 import fitz
 from datetime import datetime
 from pathlib import Path
-from src.utils.config import CHUNK_SIZE, BASE_DIR, FIREBASE_COLLECTION_NAME
-from src.database.chromadb_connection import collection
-from src.database.firebase_connection import db  
 import xml.etree.ElementTree as ET
 import streamlit as st
+import time
+import requests
+from compdfkit.client import CPDFClient 
+from compdfkit.enums import CPDFConversionEnum
+from compdfkit.param import CPDFToTxtParameter
+from compdfkit.constant import CPDFConstant
+from src.utils.config import CHUNK_SIZE, BASE_DIR, FIREBASE_COLLECTION_NAME, TEMP_TXT_PATH
+from src.database.chromadb_connection import collection
+from src.database.firebase_connection import db  
+from src.database.cpdf_connection import client
 
 def count_tokens(text):
     """
@@ -24,7 +31,8 @@ def count_tokens(text):
 
 def extract_text_from_pdf(pdf_path):
     """
-    Extracts text from a PDF file.
+    Extracts text from a PDF file by first converting it to TXT via ComPDFKit API,
+    then reading the TXT content.
 
     Args:
         pdf_path (str): The path to the PDF file.
@@ -33,11 +41,52 @@ def extract_text_from_pdf(pdf_path):
         str: The extracted text.
     """
     try:
-        doc = fitz.open(pdf_path)
-        text = "\n".join(page.get_text() for page in doc)
-        return text.strip()
+        # Step 1: Create task
+        create_task_result = client.create_task(CPDFConversionEnum.PDF_TO_TXT)
+        task_id = create_task_result.task_id
+
+        # Step 2: Upload file
+        file_password = ""
+        file_parameter = CPDFToTxtParameter()
+        upload_result = client.upload_file(pdf_path, task_id, file_password, file_parameter)
+        file_key = upload_result.file_key
+
+        # Step 3: Execute task
+        client.execute_task(task_id)
+
+        # Step 4: Polling until finished
+        print("⏳ Waiting for task to finish...")
+        while True:
+            task_info = client.get_task_info(task_id)
+            if task_info.task_status == CPDFConstant.TASK_FINISH:
+                print("✅ Task completed!")
+                break
+            else:
+                print("... still processing ...")
+                time.sleep(3)
+
+        # Step 5: Get download URL
+        file_info = client.get_file_info(file_key)
+        download_url = file_info.download_url
+
+        # Step 6: Download TXT to temp file and clear for more space
+        temp_txt_path = f"{TEMP_TXT_PATH}/temp.txt"
+        response = requests.get(download_url)
+        with open(temp_txt_path, "wb") as f:
+            f.write(response.content)
+            
+        text = extract_text_from_txt(temp_txt_path)
+        try:
+            os.remove(temp_txt_path)
+            print(f"🗑️ Temp file '{temp_txt_path}' deleted.")
+        except Exception as e:
+            print(f"⚠️ Failed to delete temp file: {e}")
+
+        # Step 7: Read the text using extract_text_from_txt
+        return text
+
     except Exception as e:
-        print(f"⚠️ Error extracting text from PDF: {str(e)}")
+        print(f"⚠️ Error extracting text from PDF via CPDF: {str(e)}")
         return ""
     
 def extract_text_from_txt(txt_path):

@@ -104,7 +104,7 @@ if user_input:
 
     st.rerun()
 
-with st.expander("📤 Upload Document", expanded=False):  # ✅ collapsed by default
+with st.expander("📤 Upload Document", expanded=False):  
     col1, col2, col3, col4, col5 = st.columns([5, 2, 2, 2, 1])
 
     with col1:
