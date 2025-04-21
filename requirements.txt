@@ -6,3 +6,4 @@ nltk
 tiktoken
 faiss-cpu
 firebase-admin
+compdfkit-api-python
