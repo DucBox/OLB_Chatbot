@@ -9,6 +9,8 @@ from src.utils.utils import extract_google_sheet_id, extract_table_by_coords, gr
 from src.database.gg_sheet_connection import get_sheets_service
 from src.services.embedding import generate_embedding, store_embedding_to_firebase, embed_text
 
+service = get_sheets_service()
+
 def read_google_sheet_from_url(sheet_url: str, index: int):
     """
     Orchestrator: Đọc dữ liệu từ Google Sheet, tách bảng, lưu file. Gọi các hàm xử lý con.
