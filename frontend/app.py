@@ -174,7 +174,6 @@ with st.expander("🌐 Use Google Sheet Link", expanded=False):
                         uploaded_by=uploaded_by,
                         index=int(sheet_index)
                     )
-                    st.success("✅ Google Sheet processed and embedded.")
                     st.rerun()
                 else:
                     st.warning("⚠️ Please fill all fields.")
