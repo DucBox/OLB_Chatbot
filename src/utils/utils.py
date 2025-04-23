@@ -254,7 +254,7 @@ def list_all_doc_ids_firebase(user_id: str) -> list[str]:
                         .where("source_type", "==", f"{user_id}_conversation") \
                         .stream()
         
-        online_docs = public_docs = db.collection(FIREBASE_COLLECTION_NAME) \
+        online_docs = db.collection(FIREBASE_COLLECTION_NAME) \
                         .where("source_type", "==", "google_sheet") \
                         .stream()
 
@@ -270,7 +270,6 @@ def list_all_doc_ids_firebase(user_id: str) -> list[str]:
     except Exception as e:
         print(f"❌ Error listing doc_ids: {e}")
         return []
-
 
 def delete_document_firebase(doc_id: str):
     """
