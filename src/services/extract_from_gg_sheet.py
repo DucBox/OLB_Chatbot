@@ -13,33 +13,22 @@ def read_google_sheet_from_url(sheet_url: str, index: int):
     """
     Orchestrator: Đọc dữ liệu từ Google Sheet, tách bảng, lưu file. Gọi các hàm xử lý con.
     """
-    import time
-
-    start_total = time.time()
     sheet_id = extract_google_sheet_id(sheet_url)
-    service = get_sheets_service()
 
-    print("Start lấy metadata")
     metadata = fetch_sheet_metadata(service, sheet_id)
     sheet = select_target_sheet(metadata, index)
     sheet_title = sheet['properties']['title']
     merges = sheet.get('merges', [])
-    print(f"✅ [Metadata] Done in {time.time() - start_total:.2f}s")
 
     values = fetch_sheet_values(service, sheet_id, sheet_title)
     if not values:
-        print("⚠️ Sheet trống.")
         return []
 
     df = convert_values_to_dataframe(values)
 
-    output_folder = "/Users/ngoquangduc/Desktop/AI_Project/chatbot_rag/data_test"
-    
     table_texts = process_and_save_all_tables(
                     df,
                     table_names=TABLE_NAMES,
-                    output_folder=output_folder,
-                    save_debug=True 
                 )
 
     return table_texts
@@ -78,7 +67,6 @@ def process_google_sheet_to_embedding(sheet_url: str, doc_id: str, position: str
 
             try:
                 embedding, returned_chunk_id = embed_text(chunk, chunk_id, metadata)
-                print(f"✅ Embedded table {table_idx} → Chunk {j} → Chunk ID: {returned_chunk_id}")
             except Exception as e:
                 print(f"❌ [ERROR] Table {table_idx} / Chunk {j} failed → {e}")
 
