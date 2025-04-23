@@ -1,10 +1,12 @@
 from src.core.summarizer import summarize_chunks
 from src.services.embedding import embed_text
 from src.utils.config import KEEP_LAST_N_PAIRS, CHUNK_SIZE
-from src.utils.utils import format_chat_history, chunk_text, parse_history_xml, display_history_chat
+from src.utils.utils import format_chat_history, chunk_text, parse_history_xml, display_history_chat, clear_user_chat_history
 from datetime import datetime
 from uuid import uuid4
-
+import streamlit as st
+import os
+import time
 def process_history_chat(
     history: list[tuple[str, str]],
     doc_id: str = "conversation",
@@ -54,14 +56,18 @@ def process_history_chat(
     truncated = history[-KEEP_LAST_N_PAIRS:] if KEEP_LAST_N_PAIRS > 0 else []
     return truncated
 
-def render_user_chat_history(xml_path: str, user_id: str):
-    """
-    Hàm chính: parse và hiển thị nội dung từ file XML lịch sử chat.
+def render_user_chat_history(xml_path: str, user_id: str, session_key: str = "chat_history"):
+    with st.sidebar.expander("📜 View Your Chat History", expanded=False):
+        history = parse_history_xml(xml_path)
+        display_history_chat(history, user_id)
 
-    Args:
-        xml_path (str): Đường dẫn file history_{user_id}.xml
-    """
-    history = parse_history_xml(xml_path)
-    display_history_chat(history, user_id)
+        if os.path.exists(xml_path):
+            last_modified = os.path.getmtime(xml_path)
+            st.caption(f"🕓 Last updated: {time.ctime(last_modified)}")
+
+        if st.button("🧹 Clear History Content", key="clear_history"):
+            if clear_user_chat_history(xml_path, session_key=session_key):
+                st.success("✅ Cleared file and in-memory chat history.")
+                st.rerun()
 
 

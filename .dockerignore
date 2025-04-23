@@ -14,5 +14,7 @@ __pycache__/
 *.env
 src/utils/firebase_key.json
 firebase_key.json
+src/utils/google_credentials.json
+src/utils/token_sheet.json
 
 

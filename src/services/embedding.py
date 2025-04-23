@@ -4,7 +4,6 @@ import fitz
 import chromadb
 import openai
 from src.utils.config import CHROMADB_PATH, FIREBASE_COLLECTION_NAME,OPENAI_API_KEY
-from src.utils.utils import extract_text_from_pdf, extract_text_from_txt
 from src.database.chromadb_connection import collection
 from src.database.firebase_connection import db  
 from datetime import datetime
@@ -74,7 +73,6 @@ def embed_text(text: str, chunk_id: str, metadata: dict):
         # store_embedding_to_db(embedding, text, chunk_id, metadata)
         store_embedding_to_firebase(embedding, text, chunk_id, metadata)
     return embedding, chunk_id
-
 
 def generate_embedding(text: str) -> list[float]:
     """

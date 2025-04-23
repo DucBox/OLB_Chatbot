@@ -14,6 +14,8 @@ from src.utils.utils import delete_document_chromadb, list_all_doc_ids_chromadb
 from src.utils.utils import delete_document_firebase, list_all_doc_ids_firebase
 from src.utils.config import LOG_FILE_XML, HISTORY_STORE_PATH
 from src.services.chat_history_handler import render_user_chat_history
+from src.services.extract_from_gg_sheet import process_google_sheet_to_embedding
+
 
 # ========== UI Setup ==========
 st.set_page_config(page_title="OLB Assistant", page_icon="🤖", layout="wide")
@@ -139,3 +141,41 @@ with st.expander("📤 Upload Document", expanded=False):
                     st.rerun()
                 else:
                     st.warning("⚠️ Please fill all fields.")
+
+with st.expander("🌐 Use Google Sheet Link", expanded=False):
+    col1, col2, col3, col4, col5, col6 = st.columns([4, 1.5, 2, 2, 2, 1])
+
+    with col1:
+        sheet_url = st.text_input("🔗 Google Sheet URL")
+
+    with col2:
+        sheet_index = st.number_input("📄 Index", min_value=0, value=0, step=1)
+
+    with col3:
+        doc_id = st.text_input("🆔 Doc ID: ")
+
+    with col4:
+        uploaded_by = st.text_input("👤 Name: ")
+
+    with col5:
+        position = st.text_input("💼 Position: ")
+
+    with col6:
+        st.markdown("<div style='height: 28px'></div>", unsafe_allow_html=True)
+        centered_gs = st.columns([1, 1, 1])
+        with centered_gs[1]:
+            if st.button("🔄"):
+                if sheet_url and doc_id and uploaded_by and position:
+                    from src.services.extract_from_gg_sheet import process_google_sheet_to_embedding
+                    process_google_sheet_to_embedding(
+                        sheet_url=sheet_url,
+                        doc_id=doc_id,
+                        position=position,
+                        uploaded_by=uploaded_by,
+                        index=int(sheet_index)
+                    )
+                    st.success("✅ Google Sheet processed and embedded.")
+                    st.rerun()
+                else:
+                    st.warning("⚠️ Please fill all fields.")
+

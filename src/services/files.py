@@ -3,7 +3,7 @@ import fitz
 import chromadb
 import openai
 from datetime import datetime
-from src.utils.config import CHUNK_SIZE
+from src.utils.config import CHUNK_SIZE, SURYA_API_KEY
 from src.services.embedding import embed_text
 from src.utils.utils import chunk_text, save_uploaded_file, extract_text_from_pdf, extract_text_from_txt
 from datetime import datetime
@@ -68,7 +68,7 @@ def extract_document_text(file_path: str) -> tuple[str, str]:
     ext = os.path.splitext(file_path)[-1].lower()
 
     if ext == ".pdf":
-        text = extract_text_from_pdf(file_path)
+        text = extract_text_from_pdf(file_path, SURYA_API_KEY)
     elif ext == ".txt":
         text = extract_text_from_txt(file_path)
     else:

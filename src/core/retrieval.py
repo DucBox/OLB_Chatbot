@@ -47,7 +47,7 @@ def retrieve_relevant_chunks(query_embedding: list[float], top_k: int, user_id: 
 
         for doc in docs:
             data = doc.to_dict()
-            if data.get("source_type") == "upload" or data.get("source_type") == f"{user_id}_conversation":
+            if data.get("source_type") == "upload" or data.get("source_type") == f"{user_id}_conversation" or data.get("source_type") == "google_sheet":
                 if "embedding" in data and "text" in data:
                     embeddings.append(data["embedding"])
                     texts.append(data["text"])
