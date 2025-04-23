@@ -13,3 +13,5 @@ google-auth-oauthlib
 PyPDF2
 surya-ocr
 selenium
+shapely
+langchain
