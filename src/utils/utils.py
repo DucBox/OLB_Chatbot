@@ -341,7 +341,6 @@ def find_cell_coordinates(df, keyword: str):
             if keyword.lower() in value:
                 print(f"🔍 Found '{keyword}' at row {r}, col {c} → '{value}'")
                 return r, c
-    print(f"❌ Không tìm thấy keyword: {keyword}")
     return None, None
 
 def extract_google_sheet_id(url: str) -> str:
@@ -365,7 +364,6 @@ def extract_table_by_coords(df, start_marker="bảng 1", end_marker="hết bản
     r2, c2 = find_cell_coordinates(df, end_marker)
 
     if r1 is None or r2 is None:
-        print(f"⚠️ Không tìm thấy marker: {start_marker} hoặc {end_marker}")
         return None
 
     # Lấy vùng từ sau dòng r1 đến trước dòng r2
@@ -379,15 +377,11 @@ def group_rows_by_first_col_gap(df: pd.DataFrame) -> list[str]:
     Mỗi block sẽ được gộp thành 1 dòng văn bản, bỏ qua các ô trống hoặc NaN.
     Ký tự xuống dòng \n sẽ được thay bằng khoảng trắng.
     """
-    print(f"📊 [DEBUG] Tổng số dòng nhận vào: {df.shape[0]}")
-    print(df.head(3))
-    
     lines = []
     i = 0
     n = df.shape[0]
 
     while i < n:
-        print(f"🔄 Row {i}: {repr(str(df.iloc[i, 0]))}")
         
         first_cell = str(df.iloc[i, 0]).strip()
         if first_cell and first_cell.lower() != "nan":
@@ -436,18 +430,16 @@ def select_target_sheet(metadata, index=0):
     return metadata['sheets'][index]
 
 def fetch_sheet_values(service, sheet_id, sheet_title):
-    start_fetch = time.time()
     result = service.spreadsheets().values().get(
         spreadsheetId=sheet_id,
         range=sheet_title
     ).execute()
-    print(f"✅ [Fetch values] Done in {time.time() - start_fetch:.2f}s")
     return result.get('values', [])
 
 def convert_values_to_dataframe(values):
     return pd.DataFrame(values)
 
-def process_and_save_all_tables(df, table_names, output_folder, save_debug=False):
+def process_and_save_all_tables(df, table_names):
     table_texts = []
 
     for table_idx, table_name in enumerate(table_names, start=1):
@@ -460,12 +452,6 @@ def process_and_save_all_tables(df, table_names, output_folder, save_debug=False
             table_text = "\n".join(lines)
             table_texts.append(table_text)
 
-            if save_debug:
-                output_path = os.path.join(output_folder, f"table_{table_idx}.txt")
-                save_text_to_txt(lines, output_path)
-
-            print(f"{table_name} ✅")
-            print("-----------")
         else:
             print(f"⚠️ Bỏ qua {table_name} (không tìm thấy)")
             table_texts.append("") 
