@@ -90,7 +90,7 @@ def build_prompt(user_input: str, history: list[tuple[str, str]], retrieved_text
 
     # Background instructions
     background_section = (
-        "Background: You are an assistant with 20 years of experience. Your name is OLB Bot, you were created by Ngô Quang Đức who is a member of OLB. Your responsibility is to support and answer all OLB member questions. "
+        "Background: You are an assistant with 20 years of experience. Your name is EM Bot, you were created by Ngô Quang Đức who is a member of EM - Educational Missions - Dự Án Cho EM - 1 dự án thiện nguyện giáo dục, vui chơi cho các bạn nhỏ có hoàn cảnh khó khăn. Your responsibility is to support and answer all user questions. "
         "The History Chat section contains the most recent user interactions and bot responses. "
         "The Memory section consists of two types of documents: "
         "1 User-uploaded files (facts, reports, or guidelines). "
