@@ -105,13 +105,13 @@ def process_google_sheet_to_embedding(sheet_url: str, category: str, uploaded_by
 
 @st.dialog("📘 Hướng dẫn định dạng Sheet và upload")
 def show_tutorial():
-    st.markdown("### 🧩 Bước 1: Đánh dấu điềm đầu tiên của bảng trong nội dung ")
+    st.markdown("### 🧩 Bước 1: Đánh dấu điểm đầu tiên của bảng trong nội dung")
     st.image("frontend/assets/Step_1.png", caption="Bắt đầu mỗi bảng bằng dòng **'Bảng X'** để đảm bảo phân đoạn chính xác. Ô - Cell đánh dấu bằng 'Bảng X' sẽ là ô phía trên của ô đầu tiên của bảng, lưu ý ô đánh dấu chỉ là ô đơn, không được phép là merged cell. Mỗi sheet có thể đánh dấu nhiều bảng, qua sheet khác thì đánh lại từ Bảng 1.")
 
     st.markdown("### ✨ Bước 2: Đánh dấu điểm kết thúc cuối cùng của bảng trong nội dung")
     st.image("frontend/assets/Step_2.png", caption="Kết thúc mỗi bảng bằng dòng chữ **'Hết bảng X'** để hệ thống nhận dạng đúng ranh giới. Ô đánh dấu bằng 'Hết bảng X' sẽ là ô ngay dưới ô cuối cùng của bảng, lưu ý ô đánh dấu chỉ là ô đơn, không được phép là merged cell")
 
-    st.markdown("### 🧱 Bước 3: Lấy link Google Sheet ")
+    st.markdown("### 🧱 Bước 3: Lấy link Google Sheet")
     st.image("frontend/assets/Step_3.png", caption="Copy đường dẫn từ trình duyệt và đảm bảo đã share quyền truy cập cho account 'quangducngo0811@gmail.com'. Đây chính là URL Sheet. Tiếp đến max_sheet chính là số trang sheet tối đa trong 1 link google sheet đang có, tính từ sheet đầu tiên là số 1 (Có thể nhập nhỏ hơn số lượng sheet thực tế có, nó sẽ chỉ lấy các sheet từ 1 đến số max_sheets mà user nhập)")
 
 
