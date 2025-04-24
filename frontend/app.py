@@ -24,7 +24,25 @@ from src.services.user_manager import (
 
 # ========== UI Setup ==========
 st.set_page_config(page_title="EM Assistant", page_icon="🤖", layout="wide")
-st.title("🤖 EM AI Bot Assistant")
+import base64
+
+def get_image_base64(path):
+    with open(path, "rb") as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
+
+image_base64 = get_image_base64("frontend/assets/EM_logo.png")
+
+st.markdown(
+    f"""
+    <h1 style='display: flex; align-items: center; gap: 10px;'>
+        <img src='data:image/png;base64,{image_base64}' width='65'/>
+        AI Bot Assistant
+    </h1>
+    """,
+    unsafe_allow_html=True
+)
+
 # ========== Session info ==========
 user_id = st.session_state.get("user_id")
 user_role = st.session_state.get("user_role")
@@ -91,9 +109,6 @@ if user_role in ["admin", "core"]:
 
     try:
         all_docs = list_all_docs_metadata_firebase(user_id)
-        print("Available categories:")
-        for doc in all_docs:
-            print("→", doc.get("category"))
 
         grouped_docs = defaultdict(lambda: defaultdict(list))
 
