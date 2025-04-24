@@ -23,8 +23,8 @@ from src.services.user_manager import (
 )
 
 # ========== UI Setup ==========
-st.set_page_config(page_title="OLB Assistant", page_icon="🤖", layout="wide")
-st.title("🤖 OLB AI Bot Assistant")
+st.set_page_config(page_title="EM Assistant", page_icon="🤖", layout="wide")
+st.title("🤖 EM AI Bot Assistant")
 # ========== Session info ==========
 user_id = st.session_state.get("user_id")
 user_role = st.session_state.get("user_role")
@@ -91,6 +91,10 @@ if user_role in ["admin", "core"]:
 
     try:
         all_docs = list_all_docs_metadata_firebase(user_id)
+        print("Available categories:")
+        for doc in all_docs:
+            print("→", doc.get("category"))
+
         grouped_docs = defaultdict(lambda: defaultdict(list))
 
         for doc in all_docs:
@@ -124,7 +128,6 @@ if user_role in ["admin", "core"]:
                                 st.rerun()
     except Exception as e:
         st.sidebar.error(f"⚠️ Failed to load documents: {e}")
-
 
 # ========== Sidebar: System Logs ==========
 st.sidebar.markdown("---")  # Separator
