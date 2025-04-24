@@ -29,14 +29,14 @@ def chat_with_gpt(user_input: str, history: list[tuple[str, str]], user_id: str)
     # Step 1: Retrieve relevant memory info
     retrieved_texts = retrieve_relevant_chunks(query_embedding = user_embedding, top_k= 10, user_id = user_id)
 
-    retrieved_output_path = "/Users/ngoquangduc/Desktop/AI_Project/chatbot_rag/data_test/retrieved_chunks.txt"
+    # retrieved_output_path = "/Users/ngoquangduc/Desktop/AI_Project/chatbot_rag/data_test/retrieved_chunks.txt"
 
-    with open(retrieved_output_path, "w", encoding="utf-8") as f:
-        for i, chunk in enumerate(retrieved_texts):
-            f.write(f"--- Chunk {i+1} ---\n")
-            f.write(chunk + "\n\n")
+    # with open(retrieved_output_path, "w", encoding="utf-8") as f:
+    #     for i, chunk in enumerate(retrieved_texts):
+    #         f.write(f"--- Chunk {i+1} ---\n")
+    #         f.write(chunk + "\n\n")
 
-    print(f"📄 Retrieved texts đã được lưu vào: {retrieved_output_path}")
+    # print(f"📄 Retrieved texts đã được lưu vào: {retrieved_output_path}")
     
     # Step 2: Build prompt
     prompt = build_prompt(user_input, history, retrieved_texts)
