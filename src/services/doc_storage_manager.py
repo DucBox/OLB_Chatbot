@@ -8,7 +8,7 @@ def list_all_docs_metadata_firebase(user_id: str) -> list[dict]:
     Bao gồm: doc_id, doc_title, category, ...
     """
     try:
-        types = ["upload", f"{user_id}_conversation", "google_sheet"]
+        types = ["uploaded_file", f"{user_id}_conversation", "google_sheet"]
         all_docs = []
         for t in types:
             docs = db.collection(FIREBASE_COLLECTION_NAME).where("source_type", "==", t).stream()
