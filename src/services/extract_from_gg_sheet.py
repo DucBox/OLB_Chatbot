@@ -3,6 +3,7 @@ import time
 import re
 import os
 import time
+import streamlit as st
 from datetime import datetime
 from src.utils.config import TABLE_NAMES
 from src.utils.gg_sheet_utils import extract_google_sheet_id, group_rows_by_first_col_gap, fetch_sheet_metadata, select_target_sheet, fetch_sheet_values, process_and_save_all_tables, describe_table_briefly
@@ -101,6 +102,17 @@ def process_google_sheet_to_embedding(sheet_url: str, category: str, uploaded_by
 
         except Exception as e:
             print(f"❌ [ERROR] Sheet index {sheet_index} ('{sheet_title}') skipped: {e}")
+
+@st.dialog("📘 Hướng dẫn định dạng Sheet và upload")
+def show_tutorial():
+    st.markdown("### 🧩 Bước 1: Lấy link Google Sheet")
+    st.image("frontend/assets/Step_1.png", caption="Copy đường dẫn từ trình duyệt và đảm bảo đã share quyền truy cập cho account 'quangducngo0811@gmail.com'. Đây chính là URL Sheet. Tiếp đến max_sheet chính là số trang sheet tối đa trong 1 link google sheet đang có, tính từ sheet đầu tiên là số 1 (Có thể nhập nhỏ hơn số lượng sheet thực tế có, nó sẽ chỉ lấy các sheet từ 1 đến số max_sheets mà user nhập) ")
+
+    st.markdown("### ✨ Bước 2: Đánh dấu bảng trong nội dung")
+    st.image("frontend/assets/Step_2.png", caption="Bắt đầu mỗi bảng bằng dòng **'Bảng X'** để đảm bảo phân đoạn chính xác. Mỗi sheet có thể đánh dấu nhiều bảng, qua sheet khác thì đánh lại từ Bảng 1")
+
+    st.markdown("### 🧱 Bước 3: Đánh dấu điểm bắt đầu của bảng mới")
+    st.image("frontend/assets/Step_3.png", caption="Kết thúc mỗi bảng bằng dòng chữ **'Hết bảng X'** để hệ thống nhận dạng đúng ranh giới")
 
 
 # process_google_sheet_to_embedding('https://docs.google.com/spreadsheets/d/1x8vgWHd38bnxYeaRBg-3i1ONMvDJ2Oq2fmhPHLLB9KA/edit?gid=1932410194#gid=1932410194', 'EM_Bắc_Kan', 'Duc', 3)

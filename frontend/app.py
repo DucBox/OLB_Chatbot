@@ -14,7 +14,7 @@ from src.utils.config import LOG_FILE_XML, HISTORY_STORE_PATH
 from src.services.uploaded_files_handler import process_uploaded_docs
 from src.services.doc_storage_manager import list_all_docs_metadata_firebase, delete_by_doc_id, delete_by_category, delete_by_doc_title
 from src.services.chat_history_handler import render_user_chat_history
-from src.services.extract_from_gg_sheet import process_google_sheet_to_embedding
+from src.services.extract_from_gg_sheet import process_google_sheet_to_embedding, show_tutorial
 from src.services.user_manager import (
     get_user_by_id,
     create_user,
@@ -244,7 +244,12 @@ if user_role in ["admin", "core"]:
         with col4:
             uploaded_by = st.text_input("👤 Name")
 
+        # 👉 Nút mở tutorial dialog
+        if st.button("📘 How to Upload Google Sheet?"):
+            show_tutorial()
+
         st.markdown("<div style='height: 10px'></div>", unsafe_allow_html=True)
+
         if st.button("🚀 Process Sheet"):
             if sheet_url and category and uploaded_by:
                 process_google_sheet_to_embedding(
@@ -256,5 +261,7 @@ if user_role in ["admin", "core"]:
                 st.rerun()
             else:
                 st.warning("⚠️ Please fill in all fields.")
+
+
 
 
