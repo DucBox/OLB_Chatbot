@@ -1,30 +1,3 @@
-# import chromadb
-# import os
-# from src.utils.config import CHROMADB_PATH
-# from src.database.chromadb_connection import collection
-
-# def retrieve_relevant_chunks(query_embedding: list[float], top_k: int = 3) -> list[str]:
-#     """
-#     Retrieves relevant document chunks from ChromaDB using the provided query embedding.
-
-#     Args:
-#         query_embedding (list): Embedding vector of the user's query.
-#         top_k (int): Number of top relevant chunks to retrieve.
-
-#     Returns:
-#         list: A list of relevant document chunks.
-#     """
-#     try:
-#         results = collection.query(query_embeddings=[query_embedding], n_results=top_k)
-
-#         if results.get("documents"):
-#             return results["documents"][:top_k]
-#         else:
-#             return ["⚠️ No relevant information found in the uploaded documents."]
-
-#     except Exception as e:
-#         return [f"⚠️ Retrieval error: {str(e)}"]
-
 import faiss
 import numpy as np
 from src.database.firebase_connection import db

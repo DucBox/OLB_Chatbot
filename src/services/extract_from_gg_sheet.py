@@ -5,9 +5,11 @@ import os
 import time
 from datetime import datetime
 from src.utils.config import TABLE_NAMES
-from src.utils.utils import extract_google_sheet_id, extract_table_by_coords, group_rows_by_first_col_gap, save_text_to_txt, fetch_sheet_metadata, select_target_sheet, fetch_sheet_values, convert_values_to_dataframe, process_and_save_all_tables, chunk_text
+from src.utils.gg_sheet_utils import extract_google_sheet_id, group_rows_by_first_col_gap, fetch_sheet_metadata, select_target_sheet, fetch_sheet_values, process_and_save_all_tables
+from src.utils.utils import extract_table_by_coords, save_text_to_txt, convert_values_to_dataframe
+from src.utils.text_chunking import chunk_text
 from src.database.gg_sheet_connection import get_sheets_service
-from src.services.embedding import generate_embedding, store_embedding_to_firebase, embed_text
+from src.services.embedding_handler import generate_embedding, store_embedding_to_firebase, embed_text
 
 service = get_sheets_service()
 

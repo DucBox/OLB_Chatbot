@@ -1,12 +1,16 @@
-from src.core.summarizer import summarize_chunks
-from src.services.embedding import embed_text
-from src.utils.config import KEEP_LAST_N_PAIRS, CHUNK_SIZE
-from src.utils.utils import format_chat_history, chunk_text, parse_history_xml, display_history_chat, clear_user_chat_history
-from datetime import datetime
-from uuid import uuid4
 import streamlit as st
 import os
 import time
+from datetime import datetime
+from uuid import uuid4
+
+from src.core.summarizer import summarize_chunks
+from src.services.embedding_handler import embed_text
+from src.utils.config import KEEP_LAST_N_PAIRS, CHUNK_SIZE
+from src.utils.text_chunking import chunk_text
+from src.utils.history_format import format_chat_history, display_history_chat, clear_user_chat_history
+from src.utils.xml_utils import parse_history_xml
+
 def process_history_chat(
     history: list[tuple[str, str]],
     doc_id: str = "conversation",

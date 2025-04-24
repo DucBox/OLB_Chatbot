@@ -1,7 +1,8 @@
 import os
 import openai
 import datetime
-from src.utils.utils import chunk_text, format_chat_history
+from src.utils.text_chunking import chunk_text
+from src.utils.history_format import format_chat_history
 from dotenv import load_dotenv
 from src.utils.config import OPENAI_API_KEY
 

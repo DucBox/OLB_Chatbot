@@ -8,14 +8,12 @@ import time
 
 # ========== Imports ==========
 from src.core.chat import chat_with_gpt
-from src.storage.history import load_history_from_xml, save_history_to_xml
-from src.services.files import process_uploaded_docs
-from src.utils.utils import delete_document_chromadb, list_all_doc_ids_chromadb
-from src.utils.utils import delete_document_firebase, list_all_doc_ids_firebase
+from src.utils.xml_utils import load_history_from_xml, save_history_to_xml
 from src.utils.config import LOG_FILE_XML, HISTORY_STORE_PATH
+from src.services.uploaded_files_handler import process_uploaded_docs
+from src.services.doc_storage_manager import delete_document_firebase, list_all_doc_ids_firebase
 from src.services.chat_history_handler import render_user_chat_history
 from src.services.extract_from_gg_sheet import process_google_sheet_to_embedding
-
 
 # ========== UI Setup ==========
 st.set_page_config(page_title="OLB Assistant", page_icon="🤖", layout="wide")
