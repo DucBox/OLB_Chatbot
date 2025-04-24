@@ -7,19 +7,47 @@ import time
 import requests
 import shutil
 import re
+import unicodedata
 import pandas as pd
 from datetime import datetime
 from pathlib import Path
-from compdfkit.client import CPDFClient 
-from compdfkit.enums import CPDFConversionEnum
-from compdfkit.param import CPDFToTxtParameter
-from compdfkit.constant import CPDFConstant
 from src.utils.config import CHUNK_SIZE, BASE_DIR, FIREBASE_COLLECTION_NAME, TEMP_TXT_PATH, TEMP_PDF_PATH
 from src.database.chromadb_connection import collection
  
 from src.database.cpdf_connection import client
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from src.utils.pdf_utils import extract_text_by_layout_order, reconstruct_page
+
+from openai import OpenAI
+from src.utils.config import OPENAI_API_KEY
+
+client = OpenAI(api_key=OPENAI_API_KEY)
+
+def call_gpt(prompt: str, model: str = "gpt-4o-mini") -> str:
+    """
+    Gọi GPT để sinh phản hồi từ một prompt ngắn.
+
+    Args:
+        prompt (str): Nội dung yêu cầu gửi đến GPT.
+        model (str): Tên model dùng để gọi, mặc định là "gpt-4o-mini".
+
+    Returns:
+        str: Nội dung phản hồi được sinh ra từ GPT.
+    """
+    try:
+        response = client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": prompt}
+            ],
+            temperature=0.7  # Bạn có thể tùy chỉnh nếu cần mô tả sáng tạo hơn
+        )
+        bot_response = response.choices[0].message.content.strip()
+        return bot_response
+    except Exception as e:
+        print(f"❌ GPT API error: {e}")
+        return "[ERROR] GPT failed to generate response."
+
 
 def extract_text_from_pdf(file_path: str, api_key: str) -> str:
     pages = extract_text_by_layout_order(file_path, api_key)
@@ -92,3 +120,9 @@ def find_cell_coordinates(df, keyword: str):
                 print(f"🔍 Found '{keyword}' at row {r}, col {c} → '{value}'")
                 return r, c
     return None, None
+
+def normalize_text(text: str) -> str:
+    text = unicodedata.normalize("NFKD", text)
+    text = text.encode("ascii", "ignore").decode("ascii")
+    text = re.sub(r"[^\w]+", "_", text)
+    return text.strip("_")
