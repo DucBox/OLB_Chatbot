@@ -13,52 +13,44 @@ from src.utils.xml_utils import parse_history_xml
 
 def process_history_chat(
     history: list[tuple[str, str]],
-    doc_id: str = "conversation",
     uploaded_by: str = "system",
-    position: str = "user",
-    source_type: str = "user_conversation",
-    user_id: str = "unknown_id"
+    user_id: str = "unknown_id",
+    source_type: str = "user_conversation"
 ) -> list[tuple[str, str]]:
     """
-    Processes chat history by:
-    1. Formatting full conversation
-    2. Chunking it
-    3. Summarizing each chunk
-    4. Embedding summaries with metadata
-    5. Truncating history if needed
-
-    Args:
-        history (list): List of (user, bot) message pairs.
-        doc_id (str): Identifier for this chat history batch.
-        uploaded_by (str): Who initiated the chat session.
-        position (str): Role of the user or system.
-
-    Returns:
-        list: Truncated history for continued tracking.
+    Process chat history into summarized chunks + embedded with metadata.
+    Refactored to align with the new metadata standard.
     """
     formatted_text = format_chat_history(history)
     chunks = chunk_text(formatted_text, chunk_size=CHUNK_SIZE)
-    summarized_chunks = summarize_chunks(chunks, doc_id=doc_id)
+    summaries = summarize_chunks(chunks)
 
-    timestamp = datetime.now().isoformat()
-    session_id = datetime.now().strftime("%Y%m%d%H%M%S")
-    
-    full_doc_id = f"{doc_id}_{session_id}"
-    for i, (chunk_id, summary) in enumerate(summarized_chunks):
+    # === Generate doc_id from new convention ===
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    timestamp_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+    doc_title = "chat_history"
+    category = "chat"
+    doc_id = f"{category}_{doc_title}_{user_id}_{timestamp_id}"
+
+    for i, (chunk_id, summary) in enumerate(summaries):
+        full_chunk_id = f"{doc_id}_summary_chunk_{i}"
+
         metadata = {
             "doc_id": doc_id,
+            "doc_title": doc_title,
+            "category": category,
             "chunk_index": i,
             "source_type": source_type,
             "uploaded_by": uploaded_by,
-            "position": position,
+            "user_id": user_id,
             "timestamp": timestamp
         }
-        full_chunk_id = f"{doc_id}_{session_id}_summary_chunk_{i}_{user_id}"
-        print(full_chunk_id)
+
+        print(f"📥 Embedding chunk {i}: {full_chunk_id}")
         embed_text(summary, full_chunk_id, metadata)
 
-    truncated = history[-KEEP_LAST_N_PAIRS:] if KEEP_LAST_N_PAIRS > 0 else []
-    return truncated
+    return history[-KEEP_LAST_N_PAIRS:] if KEEP_LAST_N_PAIRS > 0 else []
+
 
 def render_user_chat_history(xml_path: str, user_id: str, session_key: str = "chat_history"):
     with st.sidebar.expander("📜 View Your Chat History", expanded=False):

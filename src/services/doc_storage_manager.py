@@ -2,47 +2,25 @@ import os
 from src.database.firebase_connection import db 
 from src.utils.config import FIREBASE_COLLECTION_NAME
        
-def list_all_doc_ids_firebase(user_id: str) -> list[str]:
+def list_all_docs_metadata_firebase(user_id: str) -> list[dict]:
     """
-    Truy vấn tất cả doc_id từ:
-    - Public uploads (source_type == 'upload')
-    - Lịch sử chat riêng của user (source_type == '{user_id}_conversation')
-
-    Returns:
-        list[str]: Danh sách các doc_id (duy nhất, đã sắp xếp).
+    Trả về tất cả tài liệu người dùng có thể xem: upload, conversation, google_sheet.
+    Bao gồm: doc_id, doc_title, category, ...
     """
     try:
-        public_docs = db.collection(FIREBASE_COLLECTION_NAME) \
-                        .where("source_type", "==", "upload") \
-                        .stream()
-
-        personal_docs = db.collection(FIREBASE_COLLECTION_NAME) \
-                        .where("source_type", "==", f"{user_id}_conversation") \
-                        .stream()
+        types = ["upload", f"{user_id}_conversation", "google_sheet"]
+        all_docs = []
+        for t in types:
+            docs = db.collection(FIREBASE_COLLECTION_NAME).where("source_type", "==", t).stream()
+            all_docs.extend([doc.to_dict() for doc in docs])
         
-        online_docs = db.collection(FIREBASE_COLLECTION_NAME) \
-                        .where("source_type", "==", "google_sheet") \
-                        .stream()
-
-        all_docs = list(public_docs) + list(personal_docs) + list(online_docs)
-
-        doc_ids = {
-            doc.to_dict().get("doc_id")
-            for doc in all_docs
-            if doc.to_dict().get("doc_id")
-        }
-
-        return sorted(doc_ids)
+        return all_docs
     except Exception as e:
-        print(f"❌ Error listing doc_ids: {e}")
+        print(f"❌ Error fetching doc metadata: {e}")
         return []
 
-def delete_document_firebase(doc_id: str):
-    """
-    Xoá tất cả embedding chunks có doc_id tương ứng trong Firestore.
-    """
+def delete_by_doc_id(doc_id: str):
     try:
-        # Dùng positional arguments (truyền 3 đối số)
         docs = db.collection(FIREBASE_COLLECTION_NAME).where("doc_id", "==", doc_id).stream()
         count = 0
         for doc in docs:
@@ -51,3 +29,29 @@ def delete_document_firebase(doc_id: str):
         print(f"🗑️ Deleted {count} chunks with doc_id: {doc_id}")
     except Exception as e:
         print(f"❌ Error deleting doc_id {doc_id}: {e}")
+
+def delete_by_category(category: str):
+    try:
+        docs = db.collection(FIREBASE_COLLECTION_NAME).where("category", "==", category).stream()
+        count = 0
+        for doc in docs:
+            db.collection(FIREBASE_COLLECTION_NAME).document(doc.id).delete()
+            count += 1
+        print(f"🗑️ Deleted {count} chunks in category: {category}")
+    except Exception as e:
+        print(f"❌ Error deleting category {category}: {e}")
+
+def delete_by_doc_title(category: str, doc_title: str):
+    try:
+        docs = db.collection(FIREBASE_COLLECTION_NAME) \
+                 .where("category", "==", category) \
+                 .where("doc_title", "==", doc_title) \
+                 .stream()
+        count = 0
+        for doc in docs:
+            db.collection(FIREBASE_COLLECTION_NAME).document(doc.id).delete()
+            count += 1
+        print(f"🗑️ Deleted {count} chunks in {category} / {doc_title}")
+    except Exception as e:
+        print(f"❌ Error deleting doc_title {doc_title} in category {category}: {e}")
+

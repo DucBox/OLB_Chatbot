@@ -2,7 +2,7 @@ import os
 import pandas as pd
 import numpy as np
 import re
-from src.utils.utils import extract_table_by_coords 
+from src.utils.utils import extract_table_by_coords, call_gpt
 
 def process_and_save_all_tables(df, table_names):
     table_texts = []
@@ -82,7 +82,6 @@ def group_rows_by_first_col_gap(df: pd.DataFrame) -> list[str]:
 
     return lines
 
-
 def extract_google_sheet_id(url: str) -> str:
     """
     Extracts the spreadsheet ID from a Google Sheets URL.
@@ -98,3 +97,14 @@ def extract_google_sheet_id(url: str) -> str:
         return match.group(1)
     else:
         raise ValueError("❌ Invalid Google Sheets URL. Cannot extract spreadsheet ID.")
+    
+def describe_table_briefly(table_text: str) -> str:
+    prompt = (
+        "Bạn hãy đọc nội dung bảng dữ liệu sau và viết một đoạn mô tả ngắn (Từ 1-2 câu) "
+        "về bảng này nói về điều gì, dùng để làm gì. Lưu ý là không mô tả số liệu hay phân tích, bạn chỉ có nhiệm vụ và trách nhiệm mô tả một cách ngắn gọn và thật chính xác. "
+        "Lưu ý là không dự đoán, không đưa ra quan điểm hay các nhận định mơ hồ, không sử dụng các mô tả như 'Phục vụ mục đích gì đó', 'để làm gì đó', 'cho hoạt động nào đó', ..."
+        "Hãy mô tả hoàn toàn dựa trên trên những gì bạn thấy thông qua bảng thông tin và TUYỆT ĐỐI KHÔNG BỊA HAY NÓI NHỮNG ĐIỀU KHÔNG CHẮC CHẮN, THIẾU CƠ SỞ."
+        "Viết bằng tiếng Việt.\n\n"
+        f"{table_text}\n\nMô tả:"
+    )
+    return call_gpt(prompt)
