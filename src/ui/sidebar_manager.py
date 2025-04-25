@@ -11,6 +11,7 @@ from src.utils.config import HISTORY_STORE_PATH
 from src.core.traffic_controller import get_current_queue
 import psutil
 import time
+import os
 from streamlit_autorefresh import st_autorefresh
 def sidebar_doc_manager(user_id: str, user_role: str):
     """
