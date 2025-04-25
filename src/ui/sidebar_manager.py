@@ -71,22 +71,24 @@ def sidebar_doc_manager(user_id: str, user_role: str):
                     st.markdown(
                         f"**{i}.** 👤 `{entry['user']}` | Type: `{entry['type']}` | Wait: `{int(wait_sec)}s`"
                     )
-        with st.sidebar.expander("🧠 RAM Usage (Auto Update)", expanded=False):
-            ram_placeholder = st.empty()  # Tạo 1 placeholder trống để cập nhật liên tục
+        with st.sidebar.expander("🧠 RAM Usage (Auto Update)", expanded=True):
+            # ⏱️ Tự động refresh lại mỗi 3 giây
+            st_autorefresh(interval=3000, key="ram_update")
 
-            while True:
-                mem = psutil.virtual_memory()
-                total = mem.total / (1024 ** 3)  # GB
-                used = mem.used / (1024 ** 3)    # GB
-                percent = mem.percent
+            # 📊 Thông tin RAM của toàn hệ thống
+            mem = psutil.virtual_memory()
+            total = mem.total / (1024 ** 3)
+            used = mem.used / (1024 ** 3)
+            percent = mem.percent
 
-                ram_placeholder.markdown(
-                    f"""
-                    **Total RAM:** {total:.2f} GB  
-                    **Used RAM:** {used:.2f} GB ({percent}%)
-                    """
-                )
-                time.sleep(3)  # Cập nhật mỗi 3s
+            # 📦 RAM của process hiện tại (Python app của bạn)
+            process = psutil.Process(os.getpid())
+            ram_usage = process.memory_info().rss / (1024 ** 3)
+
+            st.markdown(f"**Your App RAM Usage:** {ram_usage:.2f} GB")
+            st.markdown(f"**Total RAM:** {total:.2f} GB")
+            st.markdown(f"**Used RAM:** {used:.2f} GB ({percent}%)")
+                
 
     # Hiển thị lịch sử chat người dùng
     st.sidebar.markdown("---")
