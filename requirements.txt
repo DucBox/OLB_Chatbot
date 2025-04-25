@@ -16,3 +16,4 @@ selenium
 shapely
 langchain
 psutil
+streamlit_autorefresh
