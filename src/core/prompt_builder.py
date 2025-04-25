@@ -15,7 +15,7 @@ def build_prompt_stage_1(user_input: str, retrieved_chunks: list[dict]) -> str:
 
     # Convert các chunk sang JSON string đẹp
     formatted_chunks = json.dumps(retrieved_chunks, indent=2, ensure_ascii=False)
-    print(f"Retrieved Texts: \n {formatted_chunks} \n")
+    # print(f"Retrieved Texts: \n {formatted_chunks} \n")
 
     # Build prompt
     prompt = f"""

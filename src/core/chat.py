@@ -27,20 +27,20 @@ def chat_with_gpt(user_input: str, history: list[tuple[str, str]], user_id: str)
     """
     # Step 0: Embed user input
     user_embedding = generate_embedding(user_input)
-    print("Retrieving ....")
+    # print("Retrieving ....")
     # Step 1: Retrieve relevant memory info
     retrieved_texts = retrieve_relevant_chunks(query_embedding = user_embedding, top_k= 10, user_id = user_id)
     
     # Step 2: Build prompt stage 1
-    print("Stage 1 ....")
+    # print("Stage 1 ....")
     stage_1_prompt = build_prompt_stage_1(user_input = user_input, retrieved_chunks = retrieved_texts)
     system_prompt_1 = "You are an intelligent assistant whose job is to deeply analyze and evaluate text data chunks extracted from various documents."
     
     # Step 3: Call OpenAI
     bot_response_stage_1 = call_gpt(system_prompt = system_prompt_1, user_prompt = stage_1_prompt, model = 'gpt-4o-mini')
     filtered_chunks = json.loads(bot_response_stage_1)
-    print("---------------------------")
-    print(f"1st stage response: \n {filtered_chunks}")
+    # print("---------------------------")
+    # print(f"1st stage response: \n {filtered_chunks}")
     
     final_chunks_for_stage_2 = fetch_filtered_text_chunks(filtered_chunks)
     
