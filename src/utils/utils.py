@@ -23,7 +23,7 @@ from src.utils.config import OPENAI_API_KEY
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-def call_gpt(prompt: str, model: str = "gpt-4o-mini") -> str:
+def call_gpt(system_prompt: str, user_prompt: str, model: str = "gpt-4o-mini") -> str:
     """
     Gọi GPT để sinh phản hồi từ một prompt ngắn.
 
@@ -38,9 +38,10 @@ def call_gpt(prompt: str, model: str = "gpt-4o-mini") -> str:
         response = client.chat.completions.create(
             model=model,
             messages=[
-                {"role": "system", "content": prompt}
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
             ],
-            temperature=0.7  # Bạn có thể tùy chỉnh nếu cần mô tả sáng tạo hơn
+            temperature=0.0  
         )
         bot_response = response.choices[0].message.content.strip()
         return bot_response

@@ -21,7 +21,6 @@ def read_google_sheet_from_url(sheet_url: str, index: int):
     sheet_id = extract_google_sheet_id(sheet_url)
     metadata = fetch_sheet_metadata(service, sheet_id)
     total_sheets = len(metadata["sheets"])
-    print(f"📊 Google Sheet thực tế có {total_sheets} sheet(s).")
     sheet = select_target_sheet(metadata, index)
 
     sheet_title = sheet['properties']['title']
@@ -38,6 +37,8 @@ def read_google_sheet_from_url(sheet_url: str, index: int):
                     table_names=TABLE_NAMES,
                 )
 
+    del df
+    gc.collect()
     return table_texts
 
 def process_google_sheet_to_embedding(sheet_url: str, category: str, uploaded_by: str, max_sheets: int):
@@ -54,7 +55,6 @@ def process_google_sheet_to_embedding(sheet_url: str, category: str, uploaded_by
     metadata = fetch_sheet_metadata(service, sheet_id)
     sheets = metadata["sheets"]
     total_sheets = len(sheets)
-    print(f"📊 Google Sheet thực tế có {total_sheets} sheet(s).")
 
     for sheet_index in range(min(max_sheets, total_sheets)):
         sheet_title = sheets[sheet_index]["properties"]["title"]
@@ -63,21 +63,18 @@ def process_google_sheet_to_embedding(sheet_url: str, category: str, uploaded_by
 
         try:
             table_texts = read_google_sheet_from_url(sheet_url, sheet_index)
-
             for table_idx, table_text in enumerate(table_texts):
                 if not table_text.strip():
-                    print(f"⚠️ Sheet '{sheet_title}' - Table {table_idx} is empty. Skipped.")
                     continue
 
                 print(f"🧠 Calling GPT to describe Sheet '{sheet_title}' - Table {table_idx}...")
+                
                 brief = describe_table_briefly(table_text)
                 chunks = chunk_text(table_text)
                 total_parts = len(chunks)
 
                 for i, chunk in enumerate(chunks):
                     enhanced_chunk = f"{brief}\n(PART {i+1}/{total_parts})\n{chunk}"
-                    print("---------------")
-                    print(enhanced_chunk)
                     chunk_id = f"{doc_id}_chunk_{chunk_global_index}"
 
                     metadata_obj = {
@@ -94,12 +91,15 @@ def process_google_sheet_to_embedding(sheet_url: str, category: str, uploaded_by
 
                     try:
                         embedding, returned_chunk_id = embed_text(enhanced_chunk, chunk_id, metadata_obj)
-                        print(f"✅ {doc_id} - Table {table_idx} - Chunk {chunk_global_index} → {returned_chunk_id}")
                     except Exception as e:
                         print(f"❌ [ERROR] Embed failed: {doc_id} - Table {table_idx} - Chunk {chunk_global_index}: {e}")
 
                     chunk_global_index += 1
-
+                    
+                
+                del chunks, brief, enhanced_chunk
+                gc.collect()
+                
         except Exception as e:
             print(f"❌ [ERROR] Sheet index {sheet_index} ('{sheet_title}') skipped: {e}")
 

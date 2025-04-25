@@ -1,5 +1,6 @@
 import os
 import chromadb
+import gc
 from datetime import datetime
 from src.utils.config import CHUNK_SIZE
 from src.services.embedding_handler import embed_text
@@ -13,9 +14,6 @@ def process_uploaded_docs(file_path: str, category: str, doc_title: str, uploade
     - Auto-generate doc_id using category + doc_title + timestamp
     - Embed with full metadata
     """
-    from datetime import datetime
-    import os
-
     if not os.path.exists(file_path):
         print(f"❌ File not found: {file_path}")
         return
@@ -34,7 +32,6 @@ def process_uploaded_docs(file_path: str, category: str, doc_title: str, uploade
 
     # Step 3: Chunk
     chunks = chunk_text(text, chunk_size=CHUNK_SIZE)
-
     # Step 4: Embed with metadata
     for i, chunk in enumerate(chunks):
         chunk_id = f"{doc_id}_chunk_{i}"
@@ -48,7 +45,5 @@ def process_uploaded_docs(file_path: str, category: str, doc_title: str, uploade
             "timestamp": timestamp
         }
         embed_text(chunk, chunk_id, metadata)
-
-    print(f"✅ Embedded {len(chunks)} chunks for doc: {doc_id}")
-
-
+    del chunks, text
+    gc.collect()

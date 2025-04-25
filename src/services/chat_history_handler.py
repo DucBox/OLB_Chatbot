@@ -46,7 +46,7 @@ def process_history_chat(
             "timestamp": timestamp
         }
 
-        print(f"📥 Embedding chunk {i}: {full_chunk_id}")
+        # print(f"📥 Embedding chunk {i}: {full_chunk_id}")
         embed_text(summary, full_chunk_id, metadata)
 
     return history[-KEEP_LAST_N_PAIRS:] if KEEP_LAST_N_PAIRS > 0 else []

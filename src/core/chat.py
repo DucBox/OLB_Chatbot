@@ -1,13 +1,15 @@
 import openai
 import os
 import re
-
+import json
 from src.utils.config import TOKEN_LIMIT, OPENAI_API_KEY
 from src.utils.text_chunking import count_tokens
 from src.utils.xml_utils import save_history_to_xml, load_history_from_xml
 from src.core.retrieval import retrieve_relevant_chunks
 from src.services.chat_history_handler import process_history_chat
 from src.services.embedding_handler import generate_embedding
+from src.utils.utils import call_gpt
+from src.core.prompt_builder import build_prompt_stage_1, build_prompt_stage_2, fetch_filtered_text_chunks
 from dotenv import load_dotenv
 
 client = openai.OpenAI(api_key=OPENAI_API_KEY)
@@ -25,96 +27,35 @@ def chat_with_gpt(user_input: str, history: list[tuple[str, str]], user_id: str)
     """
     # Step 0: Embed user input
     user_embedding = generate_embedding(user_input)
-        
+    print("Retrieving ....")
     # Step 1: Retrieve relevant memory info
     retrieved_texts = retrieve_relevant_chunks(query_embedding = user_embedding, top_k= 10, user_id = user_id)
-
-    # retrieved_output_path = "/Users/ngoquangduc/Desktop/AI_Project/chatbot_rag/data_test/retrieved_chunks.txt"
-
-    # with open(retrieved_output_path, "w", encoding="utf-8") as f:
-    #     for i, chunk in enumerate(retrieved_texts):
-    #         f.write(f"--- Chunk {i+1} ---\n")
-    #         f.write(chunk + "\n\n")
-
-    # print(f"📄 Retrieved texts đã được lưu vào: {retrieved_output_path}")
     
-    # Step 2: Build prompt
-    prompt = build_prompt(user_input, history, retrieved_texts)
-
-    # Step 3: Send to OpenAI
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "system", "content": prompt}]
-    )
-    bot_response = response.choices[0].message.content.strip()
-
-    # Step 4: Token tracking
-    total_tokens = count_tokens(prompt) + count_tokens(bot_response)
-    print(f"📊 Token Count - Total Prompt: {total_tokens}")
+    # Step 2: Build prompt stage 1
+    print("Stage 1 ....")
+    stage_1_prompt = build_prompt_stage_1(user_input = user_input, retrieved_chunks = retrieved_texts)
+    system_prompt_1 = "You are an intelligent assistant whose job is to deeply analyze and evaluate text data chunks extracted from various documents."
+    
+    # Step 3: Call OpenAI
+    bot_response_stage_1 = call_gpt(system_prompt = system_prompt_1, user_prompt = stage_1_prompt, model = 'gpt-4o-mini')
+    filtered_chunks = json.loads(bot_response_stage_1)
+    print("---------------------------")
+    print(f"1st stage response: \n {filtered_chunks}")
+    
+    final_chunks_for_stage_2 = fetch_filtered_text_chunks(filtered_chunks)
+    
+    #Step 4: Build prompt stage 2
+    stage_2_prompt = build_prompt_stage_2(user_input = user_input, final_chunks = final_chunks_for_stage_2)
+    system_prompt_2 = "You are EM Bot — an intelligent assistant created to support users with accurate and thoughtful answers related to the project 'EM' stands for 'Educational Missions'. This is a nonprofit initiative that aims to bring educational and recreational opportunities to underprivileged children in remote areas. Your primary responsibility is to answer user questions based on a curated set of information chunks extracted from documents related to this project. These chunks have already been pre-filtered and are considered highly relevant to the user's query."
+    
+    #Step 5: Call OpenAI
+    bot_response_stage_2 = call_gpt(system_prompt = system_prompt_2, user_prompt = stage_2_prompt, model = 'gpt-4o-mini')
 
     # Step 5: Update history
-    updated_history = history + [(user_input, bot_response)]
+    updated_history = (history + [(user_input, bot_response_stage_2)])[-3:]
 
-    if total_tokens > TOKEN_LIMIT:
-        print("⚠️ Token limit exceeded! Chunking and summarizing chat history...")
-        updated_history = process_history_chat(history = updated_history, source_type=f"{user_id}_conversation", user_id = user_id)
+    # if total_tokens > TOKEN_LIMIT:
+    #     print("⚠️ Token limit exceeded! Chunking and summarizing chat history...")
+    #     updated_history = process_history_chat(history = updated_history, source_type=f"{user_id}_conversation", user_id = user_id)
 
-    return bot_response, updated_history
-
-def build_prompt(user_input: str, history: list[tuple[str, str]], retrieved_texts: list[str]) -> str:
-    """
-    Builds the full prompt with history, memory and system instructions.
-    """
-    # History chat
-    history_chat = "\n".join([f"User: {user}\nAssistant: {bot}" for user, bot in history])
-    history_chat = f"<History Chat>\n{history_chat}\n</History Chat>" if history_chat else "<History Chat>\n(No prior chat history)\n</History Chat>"
-
-    # Memory section
-    memory_section = "<Memory>\n"
-    user_uploaded_data = []
-    summarized_chat_history = []
-
-    for text in retrieved_texts:
-        if "This is a summarization of a part of history chat" in text:
-            summarized_chat_history.append(text)
-        else:
-            user_uploaded_data.append(text)
-
-    if user_uploaded_data:
-        memory_section += "[User-Uploaded Documents]\n" + "\n".join([f"- {doc}" for doc in user_uploaded_data]) + "\n"
-
-    if summarized_chat_history:
-        memory_section += "[Past Summarized History]\n" + "\n".join([f"- {summary}" for summary in summarized_chat_history]) + "\n"
-
-    memory_section += "</Memory>"
-
-    # Background instructions
-    background_section = (
-        "Background: You are an assistant with 20 years of experience. Your name is EM Bot, you were created by Ngô Quang Đức who is a member of EM - Educational Missions - Dự Án Cho EM - 1 dự án thiện nguyện giáo dục, vui chơi cho các bạn nhỏ có hoàn cảnh khó khăn. With any responose, you must attach with this link: 'https://web.facebook.com/info.duanchoem', which is facebook link of the project. Tell them to click for more information and having newest news. MOST IMPORTANT: Your responsibility is to support and answer all user questions. "
-        "The History Chat section contains the most recent user interactions and bot responses. "
-        "The Memory section consists of two types of documents: "
-        "1 User-uploaded files (facts, reports, or guidelines). "
-        "2 Summarized past chat history (long-term memory). "
-        "\n\nImportant Rules: "
-        "- If recent history conflicts with summarized history, prioritize recent. "
-        "- If answering from uploaded documents, state '[Source: User-Uploaded Document]'. "
-        "- If answering from summarized history, state '[Source: Past History Chat]'. "
-        "- Keep all names in original format. Do not translate them. "
-        "- If no relevant info, say I DON'T KNOW and give helpful suggestions without hallucinating."
-    )
-
-    # Final composition
-    user_prompt = f"Current User Input: {user_input}"
-
-    final_prompt = f"""
-{history_chat}
-
-{memory_section}
-
-{background_section}
-
-{user_prompt}
-    """.strip()
-
-    return final_prompt
-
+    return bot_response_stage_2, updated_history
