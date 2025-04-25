@@ -9,7 +9,8 @@ from src.services.doc_storage_manager import (
 from src.services.chat_history_handler import render_user_chat_history
 from src.utils.config import HISTORY_STORE_PATH
 from src.core.traffic_controller import get_current_queue
-
+import psutil
+import time
 def sidebar_doc_manager(user_id: str, user_role: str):
     """
     Hiển thị sidebar cho admin/core để quản lý tài liệu và lịch sử chat.
@@ -70,6 +71,22 @@ def sidebar_doc_manager(user_id: str, user_role: str):
                     st.markdown(
                         f"**{i}.** 👤 `{entry['user']}` | Type: `{entry['type']}` | Wait: `{int(wait_sec)}s`"
                     )
+        with st.sidebar.expander("🧠 RAM Usage (Auto Update)", expanded=False):
+            ram_placeholder = st.empty()  # Tạo 1 placeholder trống để cập nhật liên tục
+
+            while True:
+                mem = psutil.virtual_memory()
+                total = mem.total / (1024 ** 3)  # GB
+                used = mem.used / (1024 ** 3)    # GB
+                percent = mem.percent
+
+                ram_placeholder.markdown(
+                    f"""
+                    **Total RAM:** {total:.2f} GB  
+                    **Used RAM:** {used:.2f} GB ({percent}%)
+                    """
+                )
+                time.sleep(3)  # Cập nhật mỗi 3s
 
     # Hiển thị lịch sử chat người dùng
     st.sidebar.markdown("---")
