@@ -11,7 +11,7 @@ from src.utils.utils import extract_table_by_coords, save_text_to_txt, convert_v
 from src.utils.text_chunking import chunk_text
 from src.database.gg_sheet_connection import get_sheets_service
 from src.services.embedding_handler import generate_embedding, store_embedding_to_firebase, embed_text
-
+import gc
 service = get_sheets_service()
 
 def read_google_sheet_from_url(sheet_url: str, index: int):

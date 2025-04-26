@@ -18,7 +18,7 @@ def store_embedding_to_firebase(
     metadata: dict
 ):
     """
-    Lưu embedding và metadata vào Firestore (Firebase).
+    Save embedding và metadata to Firestore (Firebase).
     """
     try:
         data = {
