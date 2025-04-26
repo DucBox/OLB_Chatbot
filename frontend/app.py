@@ -27,10 +27,20 @@ sidebar_doc_manager(user_id, user_role)
 
 # ========== File XML ==========
 USER_HISTORY_CHAT_FILE = HISTORY_STORE_PATH / f"chat_history_{user_id}.xml"
+
 if not os.path.exists(USER_HISTORY_CHAT_FILE):
     os.makedirs(os.path.dirname(USER_HISTORY_CHAT_FILE), exist_ok=True)
-    with open(USER_HISTORY_CHAT_FILE, "w") as f:
-        f.write('<?xml version="1.0" encoding="utf-8"?><chat_history></chat_history>')
+    with open(USER_HISTORY_CHAT_FILE, "w", encoding="utf-8") as f:
+        f.write(
+            """<?xml version="1.0" encoding="utf-8"?>
+            <chat_history>
+                <exchange>
+                    <user> Bạn là ai? Bạn có thể làm những gì? </user>
+                    <bot> Tôi là EM Bot, là 1 trợ lý hỗ trợ trả lời các câu hỏi liên quan đến dự án 'CHO EM' - Educational Missions, một dự án giáo dục thiện nguyện dành cho các em nhỏ có hoàn cảnh khó khăn ở các vùng sâu vùng xa. Nếu bạn có bất cứ thắc mắc gì về dự án cần hỏi, hãy cho tôi biết và tôi luôn sẵn lòng trả lời bạn. Nếu bạn muốn theo dõi hành trình của 'EM', hãy nhấn vào link: https://www.facebook.com/info.duanchoem và đừng ngần ngại cho 'EM' xin một follow và một lượt like cũng như lượt chia sẻ nhé! </bot>
+                </exchange>
+            </chat_history>
+            """
+        )
 
 # ========== Load Chat History ==========
 if "chat_history" not in st.session_state:
