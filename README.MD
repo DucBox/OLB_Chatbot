@@ -85,3 +85,9 @@ Chat response is streamed gradually for better user experience.
 
 🤝 Acknowledgments
 Special thanks to Educational Missions - "Dự Án Cho EM" for inspiring this chatbot project. ❤️
+
+---
+
+## 📜 License & Author
+- 📌 **Author:** Ngo Quang Duc
+- 📌 **Contact:** quangducngo0811@gmail.com
