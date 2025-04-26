@@ -15,9 +15,7 @@ from src.services.embedding_handler import generate_embedding, store_embedding_t
 service = get_sheets_service()
 
 def read_google_sheet_from_url(sheet_url: str, index: int):
-    """
-    Orchestrator: Đọc dữ liệu từ Google Sheet, tách bảng, lưu file. Gọi các hàm xử lý con.
-    """
+ 
     sheet_id = extract_google_sheet_id(sheet_url)
     metadata = fetch_sheet_metadata(service, sheet_id)
     total_sheets = len(metadata["sheets"])
@@ -42,10 +40,7 @@ def read_google_sheet_from_url(sheet_url: str, index: int):
     return table_texts
 
 def process_google_sheet_to_embedding(sheet_url: str, category: str, uploaded_by: str, max_sheets: int):
-    """
-    Đọc Google Sheet nhiều tab (sheet index), xử lý embedding từng bảng.
-    Với mỗi bảng, sinh mô tả ngắn qua GPT, rồi chunk và embed lại (có context).
-    """
+
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     timestamp_id = datetime.now().strftime("%Y%m%d_%H%M%S")
     chunk_global_index = 0

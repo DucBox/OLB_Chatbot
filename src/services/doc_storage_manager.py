@@ -4,8 +4,8 @@ from src.utils.config import FIREBASE_COLLECTION_NAME
        
 def list_all_docs_metadata_firebase(user_id: str) -> list[dict]:
     """
-    Trả về tất cả tài liệu người dùng có thể xem: upload, conversation, google_sheet.
-    Bao gồm: doc_id, doc_title, category, ...
+    Return all documents from db: upload, conversation, google_sheet.
+    Including metadata: doc_id, doc_title, category, ...
     """
     try:
         types = ["uploaded_file", f"{user_id}_conversation", "google_sheet"]

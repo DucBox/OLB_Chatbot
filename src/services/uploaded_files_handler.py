@@ -5,7 +5,7 @@ from datetime import datetime
 from src.utils.config import CHUNK_SIZE
 from src.services.embedding_handler import embed_text
 from src.utils.text_chunking import chunk_text
-from src.utils.utils import save_uploaded_file, normalize_text
+from src.utils.utils import normalize_text
 from src.services.txt_pdf_handler import extract_document_text
 
 def process_uploaded_docs(file_path: str, category: str, doc_title: str, uploaded_by: str):

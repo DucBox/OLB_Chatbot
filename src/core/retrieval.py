@@ -5,11 +5,9 @@ from src.utils.config import FIREBASE_COLLECTION_NAME
 
 def retrieve_relevant_chunks(query_embedding: list[float], top_k: int, user_id: str) -> list[dict]:
     """
-    Truy vấn top-k văn bản gần nhất từ Firestore dùng FAISS + embedding.
-    Trả về danh sách dict chứa metadata + content.
-
+    Retrieve top-k relevant document chunks Firestore using FAISS + embedding.
     Returns:
-        list[dict]: Danh sách chunk gần nhất dưới dạng dict gồm:
+        list[dict]:
             - Category
             - Document Title
             - Chunk_ID
