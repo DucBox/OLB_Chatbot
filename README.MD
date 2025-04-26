@@ -12,15 +12,15 @@ You must create a `.env` file at the **project root** with the following content
 ```env
 # OpenAI API
 OPENAI_API_KEY=your_openai_api_key
-```
+
 
 # Firebase credentials, Google Cloud API, Google Sheet Token, ... 
-
-Check .env for more details
+=> Check .env for more details
 
 # Other configs
 PROJECT_NAME=EM_AI_Chatbot
 ✅ The src/utils/config.py will automatically load these values at runtime using python-dotenv.
+```
 
 ⚙️ How to Run Locally (Without Docker)
 ## 🚀 How to Run Locally (Without Docker)
