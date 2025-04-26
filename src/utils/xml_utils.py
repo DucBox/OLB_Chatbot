@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 
 def parse_history_xml(xml_path: str) -> list[tuple[str, str]]:
     """
-    Đọc file XML và trả ra danh sách (user, bot) pairs.
+    Reads file XML and returns list of (user, bot) pairs.
     """
     try:
         tree = ET.parse(xml_path)

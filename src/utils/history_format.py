@@ -3,7 +3,7 @@ import os
 
 def display_history_chat(history: list[tuple[str, str]], user_id: str):
     """
-    Hiển thị nội dung lịch sử chat dạng gọn đẹp trên UI.
+    Display history chat on UI clearly
     """
     for i, (user_msg, bot_msg) in enumerate(history):
         st.markdown(f"**🧑 {user_id}:** {user_msg}")
@@ -12,10 +12,7 @@ def display_history_chat(history: list[tuple[str, str]], user_id: str):
         
 def clear_user_chat_history(xml_path: str, session_key: str = "chat_history") -> bool:
     """
-    Xoá nội dung file XML và xoá session_state tương ứng.
-
-    Returns:
-        bool: True nếu xoá thành công, False nếu gặp lỗi.
+    Clear file XML and session_state of history chat
     """
     try:
         with open(xml_path, "w") as f:

@@ -40,11 +40,6 @@ def fetch_sheet_metadata(service, sheet_id):
     ).execute()
 
 def group_rows_by_first_col_gap(df: pd.DataFrame) -> list[str]:
-    """
-    Gộp các dòng liên tiếp trong DataFrame dựa theo khoảng cách giữa các dòng có nội dung ở cột đầu tiên.
-    Mỗi block sẽ được gộp thành 1 dòng văn bản, bỏ qua các ô trống hoặc NaN.
-    Ký tự xuống dòng \n sẽ được thay bằng khoảng trắng.
-    """
     lines = []
     i = 0
     n = df.shape[0]
@@ -101,10 +96,11 @@ def extract_google_sheet_id(url: str) -> str:
 def describe_table_briefly(table_text: str) -> str:
     prompt = (
         "Bạn hãy đọc nội dung bảng dữ liệu sau và viết một đoạn mô tả ngắn (Từ 1-2 câu) "
-        "về bảng này nói về điều gì, dùng để làm gì. Lưu ý là không mô tả số liệu hay phân tích, bạn chỉ có nhiệm vụ và trách nhiệm mô tả một cách ngắn gọn và thật chính xác. "
+        "Bảng này nói về điều gì, dùng để làm gì. Lưu ý là không mô tả số liệu hay phân tích, bạn chỉ có nhiệm vụ và trách nhiệm mô tả một cách ngắn gọn và thật chính xác. "
         "Lưu ý là không dự đoán, không đưa ra quan điểm hay các nhận định mơ hồ, không sử dụng các mô tả như 'Phục vụ mục đích gì đó', 'để làm gì đó', 'cho hoạt động nào đó', ..."
         "Hãy mô tả hoàn toàn dựa trên trên những gì bạn thấy thông qua bảng thông tin và TUYỆT ĐỐI KHÔNG BỊA HAY NÓI NHỮNG ĐIỀU KHÔNG CHẮC CHẮN, THIẾU CƠ SỞ."
         "Viết bằng tiếng Việt.\n\n"
         f"{table_text}\n\nMô tả:"
     )
-    return call_gpt(prompt)
+    system_prompt = "You are an expert in the field of describing shortly but exact information from a text table."
+    return call_gpt(system_prompt = system_prompt, user_prompt = prompt)

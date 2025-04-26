@@ -16,15 +16,14 @@ def count_tokens(text):
 
 def chunk_text(text: str, chunk_size: int = CHUNK_SIZE) -> list[str]:
     """
-    Chia văn bản bằng RecursiveCharacterTextSplitter của LangChain,
-    GIỮ nguyên định dạng dòng và cho phép chồng lấn giữa các chunk.
+    Chunk text using RecursiveCharacterTextSplitter
 
     Args:
-        text (str): Văn bản gốc.
-        chunk_size (int): Số lượng ký tự mỗi chunk.
+        text (str): Original Text
+        chunk_size (int): Number of chars each chunk
 
     Returns:
-        list[str]: Danh sách các đoạn text đã chia.
+        list[str]: Chunk list
     """
     CHUNK_OVERLAP = 100
     splitter = RecursiveCharacterTextSplitter(

@@ -68,7 +68,7 @@ def extract_text_by_layout_order(file_path: str, api_key: str):
         else:
             raise TimeoutError(f"OCR polling page {page_num} timed out")
 
-        layout_page = layout_result["pages"][0]  # vì file PDF chỉ có 1 trang
+        layout_page = layout_result["pages"][0] 
         ocr_page = ocr_result["pages"][0]
         ocr_lines = ocr_page["text_lines"]
 
@@ -82,7 +82,6 @@ def extract_text_by_layout_order(file_path: str, api_key: str):
 
         layout_boxes.sort(key=lambda x: x["position"])
         all_page_outputs.append((page_num, layout_boxes))
-    # 🧹 Cleanup folder PDF 
     shutil.rmtree(output_dir)
     return all_page_outputs
 
@@ -93,10 +92,29 @@ def reconstruct_page(blocks: list[dict]) -> list[str]:
         text = box.get("text", "").strip()
         if not text:
             continue
-        if label == "SectionHeader":
+        if label == "Section-header":
             output.append(f"🔷 {text.upper()}")
         elif label == "Text":
             output.append(f"  ↳ {text}")
-        elif label == "ListItem":
+        elif label == "List-item":
             output.append(f"    • {text}")
+        elif label == "Title":
+            output.append(f"🏷️ {text}")
+        elif label == "Caption":
+            output.append(f"🖼️ Caption: {text}")
+        elif label == "Footnote":
+            output.append(f"📝 Footnote: {text}")
+        elif label == "Formula":
+            output.append(f"🔢 Formula: {text}")
+        elif label == "Page-footer":
+            output.append(f"📄 Footer: {text}")
+        elif label == "Page-header":
+            output.append(f"📄 Header: {text}")
+        elif label == "Picture" or label == "Figure":
+            output.append(f"🖼️ [Image/Figure]: {text}")
+        elif label == "Table":
+            output.append(f"📊 [Table]: {text}")
+        else:
+            output.append(f"❓ {label}: {text}")  
     return output
+
