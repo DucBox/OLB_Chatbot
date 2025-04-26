@@ -12,6 +12,7 @@ You must create a `.env` file at the **project root** with the following content
 ```env
 # OpenAI API
 OPENAI_API_KEY=your_openai_api_key
+```
 
 # Firebase credentials, Google Cloud API, Google Sheet Token, ... 
 
