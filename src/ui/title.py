@@ -2,9 +2,7 @@ import base64
 import streamlit as st
 
 def render_logo_header(image_path: str):
-    """
-    Hiển thị logo và tiêu đề trên đầu trang.
-    """
+
     image_base64 = get_image_base64(image_path)
 
     st.markdown(

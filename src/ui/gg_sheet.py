@@ -2,9 +2,7 @@ import streamlit as st
 from src.services.extract_from_gg_sheet import process_google_sheet_to_embedding
 
 def render_gsheet_block():
-    """
-    UI để người dùng nhập Google Sheet URL và đưa vào hệ thống (chỉ admin/core).
-    """
+
     with st.expander("🌐 Use Google Sheet Link", expanded=False):
         col1, col2, col3, col4 = st.columns([4, 1, 2, 2])
 
@@ -20,7 +18,6 @@ def render_gsheet_block():
         with col4:
             uploaded_by = st.text_input("👤 Name", key="gsheet_uploaded_by_input")
 
-        # 👉 Nút mở tutorial dialog
         if st.button("📘 How to Upload Google Sheet?"):
             show_tutorial()
 

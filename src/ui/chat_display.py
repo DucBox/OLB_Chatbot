@@ -1,9 +1,7 @@
 import streamlit as st
 
 def render_chat_history(chat_history):
-    """
-    Hiển thị toàn bộ lịch sử hội thoại đã lưu trong session_state.chat_history.
-    """
+
     for user_msg, bot_msg in chat_history:
         st.markdown(
             f'<div class="chat-container user"><div class="chat-bubble">{user_msg}</div></div>',
@@ -14,7 +12,7 @@ def render_chat_history(chat_history):
             unsafe_allow_html=True,
         )
 
-    # CSS để style khung chat
+    # CSS to format chatbox display
     st.markdown("""
         <style>
         .chat-container { margin-bottom: 1.2rem; }

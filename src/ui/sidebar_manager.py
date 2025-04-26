@@ -1,4 +1,9 @@
 import streamlit as st
+import psutil
+import time
+import os
+import numpy as np
+
 from collections import defaultdict
 from src.services.doc_storage_manager import (
     list_all_docs_metadata_firebase,
@@ -9,15 +14,11 @@ from src.services.doc_storage_manager import (
 from src.services.chat_history_handler import render_user_chat_history
 from src.utils.config import HISTORY_STORE_PATH
 from src.core.traffic_controller import get_current_queue
-import psutil
-import time
-import os
-import numpy as np
 from streamlit_autorefresh import st_autorefresh
+
+
 def sidebar_doc_manager(user_id: str, user_role: str):
-    """
-    Hiển thị sidebar cho admin/core để quản lý tài liệu và lịch sử chat.
-    """
+
     st.sidebar.success(f"👋 Welcome, {user_id} ({user_role})")
 
     if user_role in ["admin", "core"]:
@@ -59,7 +60,7 @@ def sidebar_doc_manager(user_id: str, user_role: str):
         except Exception as e:
             st.sidebar.error(f"⚠️ Failed to load documents: {e}")
     
-        # ================== DEBUG TRAFFIC QUEUE (for admin/core) ==================
+    # ================== DEBUG TRAFFIC QUEUE (for admin/core) ==================
     if user_role in ["admin"]:
         st.sidebar.markdown("### 🚦 Traffic Monitor")
 
@@ -75,16 +76,13 @@ def sidebar_doc_manager(user_id: str, user_role: str):
                         f"**{i}.** 👤 `{entry['user']}` | Type: `{entry['type']}` | Wait: `{int(wait_sec)}s`"
                     )
         with st.sidebar.expander("🧠 RAM Usage (Auto Update)", expanded=True):
-            # ⏱️ Tự động refresh lại mỗi 3 giây
             st_autorefresh(interval=3000, key="ram_update")
 
-            # 📊 Thông tin RAM của toàn hệ thống
             mem = psutil.virtual_memory()
             total = mem.total / (1024 ** 3)
             used = mem.used / (1024 ** 3)
             percent = mem.percent
 
-            # 📦 RAM của process hiện tại (Python app của bạn)
             process = psutil.Process(os.getpid())
             ram_usage = process.memory_info().rss / (1024 ** 3)
 
@@ -93,7 +91,6 @@ def sidebar_doc_manager(user_id: str, user_role: str):
             st.markdown(f"**Used RAM:** {used:.2f} GB ({percent}%)")
                 
 
-    # Hiển thị lịch sử chat người dùng
     st.sidebar.markdown("---")
     st.sidebar.markdown("### 📂 System Logs")
     with st.sidebar.expander("📜 View Your Chat History", expanded=False):

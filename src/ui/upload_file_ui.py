@@ -3,10 +3,7 @@ import streamlit as st
 from src.services.uploaded_files_handler import process_uploaded_docs
 
 def render_upload_block():
-    """
-    Hiển thị khối UI để upload tài liệu từ file PDF hoặc TXT.
-    Chỉ dùng cho user role: admin / core.
-    """
+
     with st.expander("📤 Upload Document", expanded=False):  
         col1, col2, col3, col4 = st.columns([5, 2, 2, 2])
 
