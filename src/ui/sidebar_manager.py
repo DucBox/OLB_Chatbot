@@ -76,7 +76,10 @@ def sidebar_doc_manager(user_id: str, user_role: str):
                         f"**{i}.** 👤 `{entry['user']}` | Type: `{entry['type']}` | Wait: `{int(wait_sec)}s`"
                     )
         with st.sidebar.expander("🧠 RAM Usage (Auto Update)", expanded=True):
-            st_autorefresh(interval=3000, key="ram_update")
+            enable_autorefresh = st.checkbox("🔄 Enable Auto Refresh", value=False)
+
+            if enable_autorefresh:
+                st_autorefresh(interval=3000, key="ram_update")
 
             mem = psutil.virtual_memory()
             total = mem.total / (1024 ** 3)
