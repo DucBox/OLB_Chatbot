@@ -1,5 +1,5 @@
 import streamlit as st
-from src.services.extract_from_gg_sheet import process_google_sheet_to_embedding
+from src.services.extract_from_gg_sheet import process_google_sheet_to_embedding, show_tutorial
 
 def render_gsheet_block():
 
