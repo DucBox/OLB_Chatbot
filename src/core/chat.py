@@ -15,16 +15,7 @@ from dotenv import load_dotenv
 client = openai.OpenAI(api_key=OPENAI_API_KEY)
 
 def chat_with_gpt(user_input: str, history: list[tuple[str, str]], user_id: str) -> tuple[str, list[tuple[str, str]]]:
-    """
-    Handles chatbot conversation, tracks tokens, retrieves document information, and manages history overflow.
 
-    Args:
-        user_input (str): Latest user message.
-        history (List[Tuple[str, str]]): Existing conversation history.
-
-    Returns:
-        Tuple[str, List[Tuple[str, str]]]: (Bot response, updated history)
-    """
     # Step 0: Embed user input
     user_embedding = generate_embedding(user_input)
     # print("Retrieving ....")
@@ -53,9 +44,5 @@ def chat_with_gpt(user_input: str, history: list[tuple[str, str]], user_id: str)
 
     # Step 5: Update history
     updated_history = (history + [(user_input, bot_response_stage_2)])[-3:]
-
-    # if total_tokens > TOKEN_LIMIT:
-    #     print("⚠️ Token limit exceeded! Chunking and summarizing chat history...")
-    #     updated_history = process_history_chat(history = updated_history, source_type=f"{user_id}_conversation", user_id = user_id)
 
     return bot_response_stage_2, updated_history

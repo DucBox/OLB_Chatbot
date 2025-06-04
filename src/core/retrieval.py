@@ -31,7 +31,7 @@ def retrieve_relevant_chunks(query_embedding: list[float], top_k: int, user_id: 
                     })
 
         if not embeddings:
-            return [{"error": "⚠️ Không có dữ liệu embedding để search."}]
+            return [{"error": " Không có dữ liệu embedding để search."}]
 
         dim = len(embeddings[0])
         index = faiss.IndexFlatL2(dim)
@@ -45,9 +45,9 @@ def retrieve_relevant_chunks(query_embedding: list[float], top_k: int, user_id: 
             if idx < len(metadata):
                 results.append(metadata[idx])
 
-        return results if results else [{"error": "⚠️ Không tìm thấy kết quả gần nhất."}]
+        return results if results else [{"error": " Không tìm thấy kết quả gần nhất."}]
 
     except Exception as e:
-        return [{"error": f"⚠️ Retrieval error: {str(e)}"}]
+        return [{"error": f" Retrieval error: {str(e)}"}]
 
 

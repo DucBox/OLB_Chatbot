@@ -17,15 +17,11 @@ def process_history_chat(
     user_id: str = "unknown_id",
     source_type: str = "user_conversation"
 ) -> list[tuple[str, str]]:
-    """
-    Process chat history into summarized chunks + embedded with metadata.
-    Refactored to align with the new metadata standard.
-    """
+
     formatted_text = format_chat_history(history)
     chunks = chunk_text(formatted_text, chunk_size=CHUNK_SIZE)
     summaries = summarize_chunks(chunks)
 
-    # === Generate doc_id from new convention ===
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     timestamp_id = datetime.now().strftime("%Y%m%d_%H%M%S")
     doc_title = "chat_history"
@@ -53,17 +49,17 @@ def process_history_chat(
 
 
 def render_user_chat_history(xml_path: str, user_id: str, session_key: str = "chat_history"):
-    with st.sidebar.expander("📜 View Your Chat History", expanded=False):
+    with st.sidebar.expander(" View Your Chat History", expanded=False):
         history = parse_history_xml(xml_path)
         display_history_chat(history, user_id)
 
         if os.path.exists(xml_path):
             last_modified = os.path.getmtime(xml_path)
-            st.caption(f"🕓 Last updated: {time.ctime(last_modified)}")
+            st.caption(f" Last updated: {time.ctime(last_modified)}")
 
         if st.button("🧹 Clear History Content", key="clear_history"):
             if clear_user_chat_history(xml_path, session_key=session_key):
-                st.success("✅ Cleared file and in-memory chat history.")
+                st.success(" Cleared file and in-memory chat history.")
                 st.rerun()
 
 

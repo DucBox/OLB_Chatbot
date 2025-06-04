@@ -27,4 +27,4 @@ if firebase_json_str:
     firebase_admin.initialize_app(cred)
     db = firestore.client()
 else:
-    raise RuntimeError("❌ FIREBASE_KEY_JSON environment variable not found.")
+    raise RuntimeError(" FIREBASE_KEY_JSON environment variable not found.")

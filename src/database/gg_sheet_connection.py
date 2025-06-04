@@ -1,33 +1,33 @@
-import os
 import json
+import os
+from dotenv import load_dotenv
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
-from dotenv import load_dotenv
 
 # Load biến môi trường
 load_dotenv()
 
-SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
+SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
 
 def get_sheets_service():
     """Xác thực và trả về dịch vụ Google Sheets API bằng Service Account."""
-    
-    # Lấy GOOGLE_CREDENTIALS từ biến môi trường (chứa JSON service account)
     gg_credentials = os.getenv("GOOGLE_CREDENTIALS")
     if not gg_credentials:
         raise ValueError("GOOGLE_CREDENTIALS environment variable not found.")
 
-    # Ghi ra file tạm /tmp/gg_credentials.json
-    creds_data = json.loads(gg_credentials)
-    service_account_path = "/tmp/gg_credentials.json"
-    with open(service_account_path, "w") as f:
-        json.dump(creds_data, f)
+    # FIX: nếu chưa escape \\n, thì tự escape
+    if "\\n" not in gg_credentials:
+        gg_credentials = gg_credentials.replace("\n", "\\n")
 
-    # Authenticate bằng Service Account
-    creds = service_account.Credentials.from_service_account_file(
-        service_account_path,
+    try:
+        creds_dict = json.loads(gg_credentials)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Lỗi khi decode GOOGLE_CREDENTIALS: {e}")
+
+    # Tạo credentials trực tiếp từ dict, không cần ghi ra file
+    creds = service_account.Credentials.from_service_account_info(
+        creds_dict,
         scopes=SCOPES,
     )
 
-    service = build('sheets', 'v4', credentials=creds)
-    return service
+    return build("sheets", "v4", credentials=creds)

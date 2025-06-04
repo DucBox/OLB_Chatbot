@@ -88,6 +88,6 @@ def summarize_single_chunk(chunk):
         return summary
 
     except Exception as e:
-        return f"⚠️ Error generating summary: {str(e)}"
+        return f" Error generating summary: {str(e)}"
 
 
